@@ -1,0 +1,3033 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="viewport" name="slides-format"/>
+<title>SpecPT - Clive K. Binu | NOIRLab</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #1e293b;
+    --accent: #06B6D4;
+    --accent-dim: rgba(6, 182, 212, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-cyan: #06B6D4;
+    --placeholder-bg: rgba(148, 163, 184, 0.1);
+    --placeholder-border: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background:
+      radial-gradient(circle at 16% 18%, rgba(34, 211, 238, 0.14) 0%, rgba(34, 211, 238, 0.04) 16%, transparent 34%),
+      radial-gradient(circle at 78% 20%, rgba(96, 165, 250, 0.12) 0%, rgba(96, 165, 250, 0.03) 18%, transparent 34%),
+      radial-gradient(circle at 60% 76%, rgba(168, 85, 247, 0.10) 0%, rgba(168, 85, 247, 0.03) 16%, transparent 30%),
+      linear-gradient(135deg, rgba(59,130,246,0.10) 0%, rgba(59,130,246,0.00) 28%),
+      linear-gradient(180deg, #020817 0%, #04112a 56%, #020617 100%);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 10% 14%, rgba(255,255,255,0.90) 0 1.1px, transparent 2.4px),
+      radial-gradient(circle at 26% 30%, rgba(255,255,255,0.80) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 43% 16%, rgba(255,255,255,0.82) 0 1.15px, transparent 2.5px),
+      radial-gradient(circle at 68% 24%, rgba(255,255,255,0.78) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 86% 15%, rgba(255,255,255,0.90) 0 1.15px, transparent 2.5px),
+      radial-gradient(circle at 79% 55%, rgba(255,255,255,0.74) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 18% 74%, rgba(255,255,255,0.76) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 34% 84%, rgba(255,255,255,0.64) 0 0.95px, transparent 2.0px),
+      radial-gradient(circle at 58% 76%, rgba(255,255,255,0.78) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 92% 72%, rgba(255,255,255,0.70) 0 0.95px, transparent 2.1px),
+      radial-gradient(circle at 48% 48%, rgba(255,255,255,0.42) 0 0.8px, transparent 1.8px),
+      radial-gradient(circle at 72% 88%, rgba(255,255,255,0.48) 0 0.85px, transparent 1.9px),
+      radial-gradient(circle at 7% 90%, rgba(255,255,255,0.40) 0 0.8px, transparent 1.8px),
+      radial-gradient(circle at 62% 10%, rgba(255,255,255,0.56) 0 0.9px, transparent 2px),
+      radial-gradient(circle at 90% 42%, rgba(255,255,255,0.54) 0 0.9px, transparent 2px),
+      linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.015) 35%, rgba(255,255,255,0.035) 48%, rgba(255,255,255,0.015) 61%, transparent 100%);
+    opacity: 0.72;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 24% 28%, rgba(34,211,238,0.10) 0%, rgba(34,211,238,0.03) 18%, transparent 42%),
+      radial-gradient(ellipse at 72% 68%, rgba(168,85,247,0.08) 0%, rgba(168,85,247,0.02) 16%, transparent 36%),
+      linear-gradient(125deg, transparent 0%, rgba(88, 28, 135, 0.03) 38%, rgba(14, 165, 233, 0.05) 50%, rgba(88, 28, 135, 0.03) 62%, transparent 100%);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .presentation-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .slide {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: transparent;
+    border-top: none;
+    padding: 66px 56px 60px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+    transform: translateX(50px);
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    z-index: 10;
+  }
+
+  .slide.prev {
+    transform: translateX(-50px);
+  }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      linear-gradient(180deg, rgba(2, 6, 23, 0.36) 0%, rgba(2, 6, 23, 0.52) 100%),
+      radial-gradient(ellipse at 15% 85%, rgba(6,182,212,0.04) 0%, transparent 52%),
+      radial-gradient(ellipse at 82% 18%, rgba(59,130,246,0.04) 0%, transparent 42%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .slide > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .slide-number {
+    position: absolute;
+    bottom: 20px;
+    right: 28px;
+    font-size: 23px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .slide-title {
+    font-size: 31px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  .content { font-size: 23px; line-height: 1.7; color: var(--text-primary); }
+
+  ul.bullets {
+    list-style: none;
+    padding: 0;
+  }
+
+  ul.bullets li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 14px;
+    font-size: 23px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  ul.bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .two-col {
+    display: flex;
+    gap: 32px;
+    height: calc(100% - 120px);
+  }
+
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .col-card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 24px;
+    flex: 1;
+    border-left: 3px solid var(--accent);
+  }
+
+  .col-card h3 {
+    font-size: 23px;
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .col-card ul.bullets li { font-size: 21px; margin-bottom: 10px; }
+
+  .callout {
+    background: var(--accent-dim);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 6px;
+    margin-top: auto;
+    font-size: 21px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .figure-placeholder {
+    background: var(--placeholder-bg);
+    border: 2px dashed var(--placeholder-border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 23px;
+    font-style: italic;
+    min-height: 380px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .figure-placeholder.small {
+    min-height: 200px;
+  }
+
+  .credit {
+    font-size: 21px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    text-align: right;
+    font-style: italic;
+  }
+
+  .title-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    padding-top: 78px;
+  }
+
+  .title-slide .main-title {
+    font-size: 35px;
+    font-weight: 700;
+    color: var(--text-primary);
+    max-width: 900px;
+    line-height: 1.35;
+    margin-bottom: 36px;
+  }
+
+  .title-slide .accent-line {
+    width: 80px;
+    height: 3px;
+    background: var(--accent);
+    margin: 0 auto 32px;
+  }
+
+  .title-slide .subtitle {
+    font-size: 21px;
+    color: var(--text-secondary);
+    margin-bottom: 48px;
+    line-height: 1.8;
+  }
+
+  .title-slide .subtitle strong { color: var(--accent); }
+
+  .title-slide .collab-note {
+    font-size: 23px;
+    color: var(--text-muted);
+    margin-top: 32px;
+  }
+
+  .logo-placeholder {
+    position: absolute;
+    bottom: 70px;
+    left: 56px;
+    width: 120px;
+    height: 60px;
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed var(--text-muted);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .split-layout {
+    display: flex;
+    gap: 40px;
+    height: calc(100% - 100px);
+  }
+
+  .split-layout .left-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 16px;
+  }
+
+  .split-layout .right-figure {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .two-panel {
+    display: flex;
+    gap: 32px;
+    height: calc(100% - 110px);
+  }
+
+  .panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-label {
+    font-size: 23px;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .ack-box {
+    position: absolute;
+    bottom: 56px;
+    left: 56px;
+    right: 56px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 16px 24px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .ack-box .ack-title {
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .ack-box p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .metric-callout {
+    display: inline-block;
+    background: var(--accent-dim);
+    border: 1px solid rgba(6,182,212,0.3);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 16px;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  .metric-callout strong {
+    color: var(--text-primary);
+  }
+
+  .pipeline-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 16px 0;
+    font-size: 23px;
+    color: var(--text-muted);
+  }
+
+  .pipeline-arrow .arrow {
+    font-size: 24px;
+    color: var(--accent);
+  }
+
+  .pipeline-arrow .node {
+    background: var(--bg-card);
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), #67e8f9);
+    transition: width 0.3s ease;
+    z-index: 1001;
+  }
+
+
+
+  .table-bullets {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-secondary);
+  }
+
+  .table-bullets li {
+    margin-bottom: 8px;
+  }
+
+  .table-bullets li:last-child {
+    margin-bottom: 0;
+  }
+
+  .comparison-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100% - 130px);
+  }
+
+
+  .comparison-table {
+    width: min(980px, 100%);
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.92);
+    border: 1px solid rgba(6,182,212,0.28);
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 18px 20px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(148,163,184,0.18);
+    color: var(--text-secondary);
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .comparison-table th {
+    color: var(--accent);
+    font-weight: 700;
+    background: rgba(6,182,212,0.08);
+  }
+
+  .comparison-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .comparison-table .method {
+    width: 32%;
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  .comparison-note {
+    width: min(980px, 100%);
+    margin: 22px auto 0;
+    text-align: center;
+  }
+
+
+  .panel-bottom-box {
+    width: 100%;
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .results-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+
+  .results-callout {
+    margin-top: 0;
+    align-self: stretch;
+  }
+
+  .results-note {
+    margin-top: 14px;
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+
+  .title-slide .collab-note {
+    display: none;
+  }
+
+  .logo-placeholder {
+    position: absolute;
+    bottom: 58px;
+    left: 56px;
+    width: 170px;
+    height: auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    display: block;
+    padding: 0;
+  }
+
+  .logo-placeholder img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .facility-figure {
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid rgba(100, 116, 139, 0.55);
+    border-radius: 10px;
+    padding: 14px 14px 10px;
+  }
+
+  .facility-figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+  }
+
+  .facility-note {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .pptx-mode .logo-placeholder {
+    width: 130px !important;
+    bottom: 34px !important;
+    left: 34px !important;
+  }
+
+  .pptx-mode .facility-note {
+    font-size: 11px !important;
+  }
+
+
+  .figure-image-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .figure-image {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+  }
+
+  .credit-inline {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: right;
+    font-style: italic;
+  }
+
+  .slide6-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    height: calc(100% - 110px);
+  }
+
+  .slide6-top {
+    display: flex;
+    gap: 40px;
+    min-height: 0;
+    flex: 1;
+  }
+
+  .slide6-bottom {
+    flex: 0 0 185px;
+    min-height: 185px;
+  }
+
+  .slide6-bottom .figure-placeholder,
+  .slide6-bottom .figure-image-wrap {
+    min-height: 185px;
+    height: 100%;
+  }
+
+  .pptx-mode .slide6-stack { gap: 12px !important; height: calc(100% - 84px) !important; }
+  .pptx-mode .slide6-bottom { flex-basis: 120px !important; min-height: 120px !important; }
+  .pptx-mode .slide6-bottom .figure-placeholder,
+  .pptx-mode .slide6-bottom .figure-image-wrap { min-height: 120px !important; }
+  .pptx-mode .credit-inline { font-size: 11px !important; }
+
+
+  .slide5-clean .pipeline-arrow {
+    display: none;
+  }
+
+  .slide6-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.95fr;
+    grid-template-rows: auto 1fr;
+    column-gap: 26px;
+    row-gap: 16px;
+    height: calc(100% - 96px);
+    align-items: start;
+  }
+
+  .slide6-text {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    padding-right: 4px;
+  }
+
+  .slide6-text .content {
+    font-size: 21px;
+  }
+
+  .slide6-text ul.bullets li {
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .slide6-desi {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    min-width: 0;
+  }
+
+  .slide6-arch {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    min-width: 0;
+  }
+
+  .slide6-desi .figure-image-wrap,
+  .slide6-arch .figure-image-wrap {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    gap: 8px;
+  }
+
+  .slide6-desi .figure-image-wrap {
+    width: fit-content;
+    max-width: 100%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .slide6-desi .figure-image {
+    width: auto;
+    max-width: 100%;
+    max-height: 600px;
+    object-fit: contain;
+  }
+
+  .slide6-arch .figure-image {
+    width: 100%;
+    max-height: 290px;
+    object-fit: contain;
+  }
+
+  .slide6-desi .credit-inline,
+  .slide6-arch .credit-inline {
+    font-size: 13px;
+    text-align: right;
+  }
+
+  .slide6-desi .credit-inline {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+    box-sizing: border-box;
+    text-align: left;
+    align-self: stretch;
+    font-size: 12px;
+  }
+
+  .slide6-arch .credit-inline {
+    text-align: left;
+  }
+
+  .pptx-mode .slide6-grid {
+    grid-template-columns: 1.1fr 0.9fr !important;
+    column-gap: 18px !important;
+    row-gap: 10px !important;
+    height: calc(100% - 82px) !important;
+  }
+
+  .pptx-mode .slide6-text .content,
+  .pptx-mode .slide6-text ul.bullets li {
+    font-size: 16px !important;
+    line-height: 1.42 !important;
+  }
+
+  .pptx-mode .slide6-text ul.bullets li {
+    margin-bottom: 12px !important;
+  }
+
+  .pptx-mode .slide6-desi .figure-image {
+    max-height: 300px !important;
+  }
+
+  .pptx-mode .slide6-arch .figure-image {
+    max-height: 145px !important;
+  }
+
+  .pptx-mode .slide6-desi .credit-inline,
+  .pptx-mode .slide6-arch .credit-inline {
+    font-size: 11px !important;
+  }
+
+
+  .slide8-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 110px);
+  }
+
+  .slide8-centered .figure-image-wrap {
+    width: 86%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .slide8-centered .figure-image {
+    width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .pptx-mode .slide8-centered .figure-image-wrap {
+    width: 84% !important;
+  }
+
+
+  .full-figure-wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .full-figure-wrap img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+  }
+
+  .slide5-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-rows: auto 1fr;
+    column-gap: 26px;
+    row-gap: 14px;
+    height: calc(100% - 96px);
+    align-items: start;
+  }
+
+  .slide5-text {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .slide5-desi {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .slide5-desi .figure-image-wrap {
+    width: 88%;
+    max-width: 88%;
+    gap: 6px;
+  }
+
+  .slide5-desi .figure-image {
+    width: 100%;
+    max-height: 330px;
+    object-fit: contain;
+  }
+
+  .slide5-arch {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .slide5-arch .figure-image-wrap {
+    width: 72%;
+    gap: 6px;
+  }
+
+  .slide5-arch .figure-image {
+    width: 100%;
+    max-height: 285px;
+    object-fit: contain;
+  }
+
+  .slide9-flow .left-content {
+    flex: 0.88;
+  }
+
+  .slide9-flow .right-figure {
+    flex: 1.12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide9-flow .figure-image-wrap {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+  }
+
+  .slide9-flow .figure-image {
+    width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .pptx-mode .slide5-grid {
+    column-gap: 18px !important;
+    row-gap: 10px !important;
+    height: calc(100% - 82px) !important;
+  }
+
+  .pptx-mode .slide5-desi .figure-image {
+    max-height: 215px !important;
+  }
+
+  .pptx-mode .slide5-arch .figure-image-wrap {
+    width: 76% !important;
+  }
+
+  .pptx-mode .slide5-arch .figure-image {
+    max-height: 150px !important;
+  }
+
+
+  .slide2-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: calc(100% - 96px);
+  }
+
+  .slide2-hero .hero-figure {
+    flex: 1.42;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+
+  .slide2-hero .hero-figure img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  .slide2-hero .hero-text {
+    flex: 0.58;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .slide2-hero .hero-text .content {
+    font-size: 21px;
+    line-height: 1.55;
+  }
+
+  .slide2-hero .hero-text ul.bullets li {
+    margin-bottom: 8px;
+    line-height: 1.45;
+  }
+
+  .slide3-large .right-figure {
+    flex: 1.32;
+  }
+
+  .slide3-large .left-content {
+    flex: 0.68;
+    padding-right: 6px;
+  }
+
+  .slide3-large .full-figure-wrap {
+    justify-content: center;
+    height: 100%;
+  }
+
+  .slide3-large .full-figure-wrap img {
+    width: 100%;
+    max-height: 520px;
+  }
+
+  .slide5-two-col {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    column-gap: 24px;
+    height: calc(100% - 92px);
+    align-items: stretch;
+  }
+
+  .slide5-left {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .slide5-text {
+    flex: 0 0 auto;
+    padding-right: 2px;
+  }
+
+  .slide5-text .content {
+    font-size: 21px;
+  }
+
+  .slide5-text ul.bullets li {
+    margin-bottom: 12px;
+    line-height: 1.46;
+  }
+
+  .slide5-arch {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 12px;
+    min-height: 0;
+  }
+
+  .slide5-arch .figure-image-wrap {
+    width: 100%;
+    max-width: 100%;
+    gap: 3px;
+  }
+
+  .slide5-arch .figure-image {
+    width: 100%;
+    max-height: 275px;
+    object-fit: contain;
+  }
+
+  .slide5-arch .credit-inline {
+    text-align: right;
+    font-size: 12px;
+  }
+
+  .slide5-desi {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .slide5-desi .figure-image-wrap {
+    width: fit-content;
+    height: 100%;
+    max-width: 100%;
+    gap: 3px;
+    justify-content: flex-start;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .slide5-desi .figure-image {
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
+    min-height: 500px;
+    object-fit: contain;
+  }
+
+  .slide5-desi .credit-inline {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    align-self: stretch;
+    font-size: 12px;
+  }
+
+  .slide6-large .right-figure {
+    flex: 1.2;
+  }
+
+  .slide6-large .left-content {
+    flex: 0.8;
+  }
+
+  .slide6-large .full-figure-wrap img {
+    max-height: 470px;
+  }
+
+  .slide12-centered .content {
+    height: calc(100% - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide12-centered .bullets {
+    width: min(980px, 100%);
+  }
+
+  .slide12-centered .bullets {
+    margin: 0 auto;
+  }
+
+  .slide12-centered .bullets li {
+    text-align: left;
+    padding-left: 42px;
+  }
+
+  .slide12-centered .bullets li::before {
+    display: block;
+  }
+
+  .pptx-mode .slide2-hero { gap: 10px !important; height: calc(100% - 86px) !important; }
+  .pptx-mode .slide3-large .full-figure-wrap img { max-height: 250px !important; }
+  .pptx-mode .slide5-two-col { column-gap: 16px !important; height: calc(100% - 82px) !important; }
+  .pptx-mode .slide5-desi .figure-image { min-height: 0 !important; max-height: 290px !important; }
+  .pptx-mode .slide5-arch { padding-top: 8px !important; }
+  .pptx-mode .slide5-arch .figure-image { max-height: 148px !important; }
+  .pptx-mode .slide6-large .full-figure-wrap img { max-height: 255px !important; }
+
+  .pptx-mode body, .pptx-mode .presentation-container {
+    width: 960px !important;
+    height: 540px !important;
+  }
+
+  .pptx-mode .slide {
+    padding: 40px 34px 38px !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .pptx-mode .slide-title { font-size: 28px !important; margin-bottom: 18px !important; text-align: center !important; }
+  .pptx-mode .content, .pptx-mode ul.bullets li { font-size: 16px !important; line-height: 1.42 !important; }
+  .pptx-mode .two-col, .pptx-mode .split-layout, .pptx-mode .two-panel { gap: 22px !important; height: calc(100% - 84px) !important; }
+  .pptx-mode .col-card { padding: 16px !important; }
+  .pptx-mode .col-card h3 { font-size: 19px !important; margin-bottom: 10px !important; }
+  .pptx-mode .figure-placeholder { min-height: 235px !important; font-size: 12px !important; padding: 14px !important; }
+  .pptx-mode .figure-placeholder.small { min-height: 130px !important; }
+  .pptx-mode .callout { font-size: 14px !important; padding: 12px 14px !important; }
+  .pptx-mode .metric-callout { font-size: 12px !important; padding: 8px 10px !important; }
+  .pptx-mode .panel-bottom-box { min-height: 62px !important; }
+  .pptx-mode .pipeline-arrow { font-size: 12px !important; gap: 8px !important; margin: 10px 0 !important; }
+  .pptx-mode .pipeline-arrow .arrow { font-size: 18px !important; }
+  .pptx-mode .pipeline-arrow .node { padding: 6px 10px !important; font-size: 11px !important; }
+  .pptx-mode .title-slide { padding-top: 42px !important; }
+  .pptx-mode .title-slide .main-title { font-size: 31px !important; line-height: 1.22 !important; max-width: 780px !important; margin-bottom: 20px !important; }
+  .pptx-mode .title-slide .subtitle { font-size: 17px !important; margin-bottom: 24px !important; line-height: 1.45 !important; }
+  .pptx-mode .title-slide .collab-note { font-size: 11px !important; margin-top: 18px !important; }
+  .pptx-mode .title-slide .accent-line { margin-bottom: 20px !important; }
+  .pptx-mode .logo-placeholder { width: 88px !important; height: 44px !important; bottom: 44px !important; left: 34px !important; font-size: 10px !important; }
+  .pptx-mode .ack-box { bottom: 36px !important; left: 34px !important; right: 34px !important; padding: 12px 14px !important; }
+  .pptx-mode .ack-box p, .pptx-mode .ack-box .ack-title, .pptx-mode .credit { font-size: 11px !important; }
+  .pptx-mode .slide-number { bottom: 12px !important; right: 16px !important; font-size: 12px !important; }
+  .pptx-mode .nav-controls { display: none !important; }
+
+  @media print {
+    body { overflow: visible; }
+    .slide {
+      position: relative;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      page-break-after: always;
+      border: none;
+      height: 100vh;
+    }
+    .nav-controls, .keyboard-hint {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .slide {
+      padding: 32px 24px 40px;
+    }
+    .slide-title {
+      font-size: 22px;
+    }
+    .content, ul.bullets li {
+      font-size: 23px;
+    }
+    .two-col, .split-layout, .two-panel {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+
+
+.slide9-two-images {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: calc(100% - 110px);
+}
+
+.slide9-two-images .top-horizontal,
+.slide9-two-images .bottom-square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.slide9-two-images .top-horizontal img {
+  width: 88%;
+  max-height: 52%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+.slide9-two-images .bottom-square img {
+  width: min(44%, 360px);
+  max-height: 34%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+.pptx-mode .slide9-two-images {
+  gap: 10px !important;
+  height: calc(100% - 84px) !important;
+}
+
+.pptx-mode .slide9-two-images .top-horizontal img {
+  width: 84% !important;
+  max-height: 50% !important;
+}
+
+.pptx-mode .slide9-two-images .bottom-square img {
+  width: min(40%, 220px) !important;
+  max-height: 28% !important;
+}
+
+
+.centered-figure-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100% - 110px);
+}
+.centered-figure-slide .figure-image-wrap {
+  width: 88%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.centered-figure-slide .figure-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+.pptx-mode .centered-figure-slide {
+  height: calc(100% - 84px) !important;
+}
+.pptx-mode .centered-figure-slide .figure-image-wrap {
+  width: 84% !important;
+}
+
+
+.hero-figure .credit-inline,
+.hero-figure .credit,
+.slide3-large .right-figure .credit-inline,
+.slide3-large .right-figure .credit {
+  width: 100%;
+  display: block;
+  text-align: right;
+  margin-top: 8px;
+  padding-right: 4px;
+}
+
+.hero-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.slide3-large .right-figure,
+.slide3-large .full-figure-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+
+.hero-figure .figure-frame,
+.slide3-large .right-figure .figure-frame {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-figure .figure-frame img,
+.slide3-large .right-figure .figure-frame img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.hero-figure .figure-frame .credit-inline,
+.slide3-large .right-figure .figure-frame .credit-inline {
+  width: auto;
+  max-width: 100%;
+  text-align: right;
+  margin-top: 8px;
+  padding-right: 0;
+  align-self: flex-end;
+}
+
+.hero-figure,
+.slide3-large .right-figure,
+.slide3-large .full-figure-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.slide[data-slide="5"] .slide-title {
+  margin-bottom: 34px !important;
+}
+
+.slide[data-slide="5"] .slide5-two-col {
+  margin-top: 8px;
+}
+
+.slide[data-slide="5"] .slide5-left {
+  padding-top: 10px;
+}
+
+.slide[data-slide="5"] .slide5-text {
+  margin-top: 8px;
+  padding-right: 8px;
+}
+
+.slide[data-slide="5"] .slide5-arch {
+  padding-top: 10px;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide-title {
+  margin-bottom: 24px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-left,
+.pptx-mode .slide[data-slide="5"] .slide5-arch {
+  padding-top: 6px !important;
+}
+
+
+.slide[data-slide="5"] .slide5-left {
+  padding-top: 22px !important;
+}
+
+.slide[data-slide="5"] .slide5-text {
+  margin-top: 14px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch {
+  padding-top: 18px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-left {
+  padding-top: 12px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-text {
+  margin-top: 8px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-arch {
+  padding-top: 10px !important;
+}
+
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.presentation-container {
+  width: 1920px !important;
+  height: 1080px !important;
+  position: absolute !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(var(--deck-scale, 1));
+  transform-origin: center center;
+}
+
+.slide {
+  width: 100%;
+  height: 100%;
+}
+
+.slide[data-slide="2"] .slide2-hero {
+  height: calc(100% - 120px);
+  gap: 18px;
+}
+
+.slide[data-slide="2"] .hero-figure {
+  flex: 0 0 68%;
+  min-height: 0;
+}
+
+.slide[data-slide="2"] .hero-text {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.slide[data-slide="2"] .hero-text .content,
+.slide[data-slide="2"] .hero-text ul.bullets li {
+  font-size: 20px;
+  line-height: 1.42;
+}
+
+.slide[data-slide="2"] .hero-text ul.bullets li {
+  margin-bottom: 6px;
+}
+
+.slide[data-slide="2"] .hero-figure .figure-frame,
+.slide[data-slide="2"] .hero-figure img {
+  max-height: 100%;
+}
+
+@media (max-width: 768px) {
+  .presentation-container {
+    width: 1920px !important;
+    height: 1080px !important;
+  }
+
+  .slide {
+    padding: 66px 56px 60px !important;
+  }
+
+  .slide-title {
+    font-size: 31px !important;
+  }
+
+  .content, ul.bullets li {
+    font-size: inherit !important;
+  }
+
+  .two-col, .split-layout, .two-panel {
+    flex-direction: row !important;
+    gap: inherit !important;
+  }
+}
+
+
+body {
+  background-size: cover;
+}
+
+.slide {
+  padding: 54px 46px 48px !important;
+}
+
+.slide-title {
+  font-size: 36px !important;
+  margin-top: 0 !important;
+  margin-bottom: 22px !important;
+  line-height: 1.18 !important;
+}
+
+.content,
+ul.bullets li {
+  font-size: 25px !important;
+  line-height: 1.48 !important;
+}
+
+ul.bullets li {
+  margin-bottom: 10px !important;
+}
+
+.credit-inline,
+.credit,
+.results-note,
+.metric-callout,
+.comparison-note {
+  font-size: 15px !important;
+}
+
+.two-col,
+.split-layout,
+.two-panel {
+  gap: 28px !important;
+}
+
+.slide2-hero {
+  gap: 12px !important;
+  height: calc(100% - 112px) !important;
+}
+
+.slide[data-slide="2"] .hero-figure {
+  flex: 0 0 73% !important;
+}
+
+.slide[data-slide="2"] .hero-text .content,
+.slide[data-slide="2"] .hero-text ul.bullets li {
+  font-size: 23px !important;
+  line-height: 1.38 !important;
+}
+
+.slide[data-slide="2"] .hero-text ul.bullets li {
+  margin-bottom: 4px !important;
+}
+
+.slide3-large .right-figure {
+  flex: 1.38 !important;
+}
+
+.slide3-large .left-content {
+  flex: 0.62 !important;
+}
+
+.slide3-large .full-figure-wrap img {
+  max-height: 610px !important;
+}
+
+.comparison-wrap {
+  height: calc(100% - 118px) !important;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 16px 18px !important;
+  font-size: 19px !important;
+  line-height: 1.42 !important;
+}
+
+.slide5-two-col {
+  height: calc(100% - 82px) !important;
+  column-gap: 20px !important;
+}
+
+.slide5-text .content,
+.slide5-text ul.bullets li {
+  font-size: 23px !important;
+  line-height: 1.42 !important;
+}
+
+.slide5-desi .figure-image {
+  max-height: 100% !important;
+}
+
+.slide5-arch .figure-image {
+  max-height: 300px !important;
+}
+
+.slide6-large .right-figure {
+  flex: 1.28 !important;
+}
+
+.slide6-large .left-content {
+  flex: 0.72 !important;
+}
+
+.slide6-large .full-figure-wrap img {
+  max-height: 560px !important;
+}
+
+.slide8-centered {
+  height: calc(100% - 92px) !important;
+}
+
+.slide8-centered .figure-image-wrap {
+  width: 92% !important;
+}
+
+.centered-figure-slide {
+  height: calc(100% - 92px) !important;
+}
+
+.centered-figure-slide .figure-image-wrap {
+  width: 92% !important;
+}
+
+.slide9-flow .left-content {
+  flex: 0.84 !important;
+}
+
+.slide9-flow .right-figure {
+  flex: 1.16 !important;
+}
+
+.slide12-centered .content {
+  height: calc(100% - 96px) !important;
+}
+
+.slide-number {
+  font-size: 21px !important;
+  bottom: 14px !important;
+  right: 18px !important;
+}
+
+
+.content,
+ul.bullets li {
+  font-size: 27px !important;
+}
+
+.slide[data-slide="2"] .slide-title {
+  margin-bottom: 28px !important;
+}
+
+.slide[data-slide="2"] .slide2-hero {
+  gap: 18px !important;
+  height: calc(100% - 102px) !important;
+}
+
+.slide[data-slide="2"] .hero-figure {
+  flex: 0 0 70% !important;
+}
+
+.slide[data-slide="2"] .hero-text .content,
+.slide[data-slide="2"] .hero-text ul.bullets li {
+  font-size: 25px !important;
+  line-height: 1.40 !important;
+}
+
+.slide[data-slide="3"] .split-layout {
+  gap: 22px !important;
+}
+
+.slide[data-slide="3"] .left-content {
+  flex: 0.72 !important;
+  padding-right: 2px !important;
+}
+
+.slide[data-slide="3"] .right-figure {
+  flex: 1.28 !important;
+}
+
+.slide[data-slide="3"] .content,
+.slide[data-slide="3"] ul.bullets li {
+  font-size: 25px !important;
+  line-height: 1.42 !important;
+}
+
+.slide[data-slide="3"] .full-figure-wrap img {
+  max-height: 660px !important;
+}
+
+.slide[data-slide="4"] .comparison-wrap {
+  height: calc(100% - 108px) !important;
+}
+
+.slide[data-slide="4"] .comparison-table th,
+.slide[data-slide="4"] .comparison-table td {
+  font-size: 21px !important;
+  padding: 18px 20px !important;
+  line-height: 1.46 !important;
+}
+
+.slide[data-slide="4"] .comparison-note,
+.slide[data-slide="4"] .content,
+.slide[data-slide="4"] ul.bullets li {
+  font-size: 22px !important;
+}
+
+.slide[data-slide="5"] .slide-title {
+  margin-bottom: 30px !important;
+}
+
+.slide[data-slide="5"] .slide5-two-col {
+  height: calc(100% - 72px) !important;
+  column-gap: 18px !important;
+  margin-top: 10px !important;
+}
+
+.slide[data-slide="5"] .slide5-left {
+  padding-top: 28px !important;
+}
+
+.slide[data-slide="5"] .slide5-text {
+  margin-top: 16px !important;
+  padding-right: 6px !important;
+}
+
+.slide[data-slide="5"] .slide5-text .content,
+.slide[data-slide="5"] .slide5-text ul.bullets li {
+  font-size: 25px !important;
+  line-height: 1.40 !important;
+}
+
+.slide[data-slide="5"] .slide5-arch {
+  padding-top: 26px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .figure-image-wrap {
+  width: 84% !important;
+  max-width: 84% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .figure-image {
+  width: 100% !important;
+  max-height: 355px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .credit-inline,
+.slide[data-slide="5"] .slide5-desi .credit-inline {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: block !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+  text-align: right !important;
+  box-sizing: border-box !important;
+}
+
+
+.slide-title {
+  font-size: 40px !important;
+}
+
+.content,
+ul.bullets li {
+  font-size: 31px !important;
+}
+
+.credit-inline,
+.credit,
+.results-note,
+.metric-callout,
+.comparison-note {
+  font-size: 19px !important;
+}
+
+.comparison-table th,
+.comparison-table td {
+  font-size: 25px !important;
+}
+
+.slide[data-slide="2"] .hero-text .content,
+.slide[data-slide="2"] .hero-text ul.bullets li,
+.slide[data-slide="3"] .content,
+.slide[data-slide="3"] ul.bullets li,
+.slide[data-slide="4"] .comparison-note,
+.slide[data-slide="4"] .content,
+.slide[data-slide="4"] ul.bullets li,
+.slide[data-slide="5"] .slide5-text .content,
+.slide[data-slide="5"] .slide5-text ul.bullets li {
+  font-size: 29px !important;
+}
+
+.slide-number {
+  font-size: 25px !important;
+}
+
+
+.slide[data-slide="4"] .comparison-table th,
+.slide[data-slide="4"] .comparison-table td {
+  font-size: 29px !important;
+}
+
+.slide[data-slide="5"] .slide5-two-col {
+  grid-template-columns: 1.02fr 0.98fr !important;
+  column-gap: 22px !important;
+  align-items: center !important;
+}
+
+.slide[data-slide="5"] .slide5-left {
+  justify-content: center !important;
+  padding-top: 36px !important;
+}
+
+.slide[data-slide="5"] .slide5-text {
+  margin-top: 24px !important;
+  padding-left: 18px !important;
+  padding-right: 10px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch {
+  padding-top: 34px !important;
+  align-items: center !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .figure-image-wrap {
+  width: 92% !important;
+  max-width: 92% !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .figure-image {
+  max-height: 430px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-arch .figure-image {
+  max-height: 220px !important;
+}
+
+
+/* Reduce oversized right plot on SpecPT slide */
+.slide[data-slide="5"] .slide5-desi {
+  align-items: center !important;
+  justify-content: center !important;
+  padding-top: 12px !important;
+}
+
+.slide[data-slide="5"] .slide5-desi .figure-image-wrap {
+  width: 82% !important;
+  max-width: 82% !important;
+  height: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.slide[data-slide="5"] .slide5-desi .figure-image {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  max-height: 760px !important;
+  object-fit: contain !important;
+}
+
+.slide[data-slide="5"] .slide5-desi .credit-inline {
+  width: 100% !important;
+  max-width: 100% !important;
+  text-align: right !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-desi .figure-image-wrap {
+  width: 76% !important;
+  max-width: 76% !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-desi .figure-image {
+  max-height: 245px !important;
+}
+
+
+/* Slide 5: move left text slightly up, enlarge architecture plot */
+.slide[data-slide="5"] .slide5-left {
+  padding-top: 18px !important;
+}
+
+.slide[data-slide="5"] .slide5-text {
+  margin-top: 6px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch {
+  padding-top: 12px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .figure-image-wrap {
+  width: 92% !important;
+  max-width: 92% !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .figure-image {
+  width: 100% !important;
+  max-height: 410px !important;
+  object-fit: contain !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-left {
+  padding-top: 8px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-text {
+  margin-top: 2px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-arch {
+  padding-top: 6px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-arch .figure-image {
+  max-height: 245px !important;
+}
+
+
+/* Slide 1 */
+.slide[data-slide="1"] .main-title {
+  font-size: 44px !important;
+}
+.slide[data-slide="1"] .subtitle {
+  font-size: 25px !important;
+}
+
+/* Slide 3 */
+.slide[data-slide="3"] .split-layout {
+  gap: 14px !important;
+}
+.slide[data-slide="3"] .left-content {
+  flex: 0.78 !important;
+  padding-right: 0 !important;
+}
+.slide[data-slide="3"] .right-figure {
+  flex: 1.22 !important;
+}
+.slide[data-slide="3"] .full-figure-wrap img {
+  max-height: 710px !important;
+}
+
+/* Slide 4 */
+.slide[data-slide="4"] .comparison-table {
+  width: min(1280px, 100%) !important;
+}
+.slide[data-slide="4"] .comparison-wrap > div {
+  width: min(1320px, 100%) !important;
+}
+
+/* Slide 5 */
+.slide[data-slide="5"] .slide5-desi .figure-image-wrap {
+  width: 80% !important;
+  max-width: 80% !important;
+}
+.slide[data-slide="5"] .slide5-desi .credit-inline {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 6px 0 0 0 !important;
+  padding: 0 !important;
+  text-align: right !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  box-sizing: border-box !important;
+}
+
+/* Slide 6 */
+.slide[data-slide="6"] .right-figure .full-figure-wrap {
+  width: fit-content !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.slide[data-slide="6"] .right-figure .credit-inline {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 6px !important;
+  padding: 0 !important;
+  text-align: right !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  box-sizing: border-box !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .main-title {
+  font-size: 35px !important;
+}
+.pptx-mode .slide[data-slide="1"] .subtitle {
+  font-size: 19px !important;
+}
+.pptx-mode .slide[data-slide="3"] .split-layout {
+  gap: 12px !important;
+}
+.pptx-mode .slide[data-slide="3"] .full-figure-wrap img {
+  max-height: 290px !important;
+}
+.pptx-mode .slide[data-slide="4"] .comparison-table {
+  width: min(860px, 100%) !important;
+}
+.pptx-mode .slide[data-slide="5"] .slide5-desi .figure-image-wrap {
+  width: 72% !important;
+  max-width: 72% !important;
+}
+
+
+/* Title slide: expand title horizontally */
+.slide[data-slide="1"] .main-title {
+  max-width: 1220px !important;
+  width: 1220px !important;
+  letter-spacing: 0.2px !important;
+  line-height: 1.22 !important;
+}
+
+/* Slide 5 DESI plot credit containment */
+.slide[data-slide="5"] .slide5-desi {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
+}
+
+.slide[data-slide="5"] .slide5-desi .figure-image-wrap {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  width: 76% !important;
+  max-width: 76% !important;
+  height: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  gap: 4px !important;
+}
+
+.slide[data-slide="5"] .slide5-desi .figure-image {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  object-fit: contain !important;
+}
+
+.slide[data-slide="5"] .slide5-desi .credit-inline {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 2px 0 0 0 !important;
+  padding: 0 !important;
+  text-align: right !important;
+  align-self: flex-end !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  line-height: 1.25 !important;
+  box-sizing: border-box !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .main-title {
+  max-width: 820px !important;
+  width: 820px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-desi .figure-image-wrap {
+  width: 68% !important;
+  max-width: 68% !important;
+}
+
+
+/* Slide 4: make bottom text block match wider table */
+.slide[data-slide="4"] .comparison-wrap > div > div[style*="width:min(980px,100%)"] {
+  width: min(1280px, 100%) !important;
+}
+
+/* Slide 5: enlarge architecture plot and tighten gap with DESI plot */
+.slide[data-slide="5"] .slide5-two-col {
+  grid-template-columns: 1.08fr 0.92fr !important;
+  column-gap: 14px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch {
+  padding-top: 8px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .figure-image-wrap {
+  width: 98% !important;
+  max-width: 98% !important;
+  gap: 2px !important;
+}
+
+.slide[data-slide="5"] .slide5-arch .figure-image {
+  max-height: 455px !important;
+  width: 100% !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-two-col {
+  grid-template-columns: 1.06fr 0.94fr !important;
+  column-gap: 12px !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-arch .figure-image-wrap {
+  width: 96% !important;
+  max-width: 96% !important;
+}
+
+.pptx-mode .slide[data-slide="5"] .slide5-arch .figure-image {
+  max-height: 270px !important;
+}
+
+
+.slide[data-slide="15"] .summary-block {
+  width: min(1280px, 100%);
+  margin: 0 auto;
+}
+
+.slide[data-slide="15"] .summary-main {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.slide[data-slide="15"] .summary-main > li {
+  position: relative;
+  padding-left: 26px;
+  margin-bottom: 22px;
+  font-size: 29px;
+  line-height: 1.38;
+  color: var(--text-secondary);
+}
+
+.slide[data-slide="15"] .summary-main > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 13px;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.slide[data-slide="15"] .summary-sub {
+  list-style: none;
+  margin: 10px 0 0 6px;
+  padding: 0;
+}
+
+.slide[data-slide="15"] .summary-sub li {
+  margin-bottom: 6px;
+  font-size: 25px;
+  line-height: 1.34;
+  color: var(--text-muted);
+}
+
+.pptx-mode .slide[data-slide="15"] .summary-main > li {
+  font-size: 18px !important;
+  margin-bottom: 14px !important;
+}
+
+.pptx-mode .slide[data-slide="15"] .summary-sub li {
+  font-size: 15px !important;
+}
+
+
+.backup-figure-slide {
+  height: calc(100% - 92px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backup-figure-slide .figure-image-wrap {
+  width: 92%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backup-figure-slide .figure-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.backup-math-slide {
+  height: calc(100% - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backup-math-inner {
+  width: min(1460px, 100%);
+  margin: 0 auto;
+  color: var(--text-secondary);
+}
+
+.backup-math-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 34px;
+  align-items: stretch;
+}
+
+.backup-math-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-radius: 28px;
+  padding: 26px 30px;
+}
+
+.backup-math-card h3 {
+  font-size: 32px;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: 22px;
+  font-weight: 500;
+}
+
+.backup-math-card p {
+  font-size: 24px;
+  line-height: 1.42;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.backup-math-card .eq-block {
+  font-size: 30px;
+  color: var(--text-primary);
+  margin: 18px 0 24px;
+}
+
+.backup-math-card .eq-small {
+  font-size: 28px;
+}
+
+.backup-z-slide {
+  height: calc(100% - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backup-z-inner {
+  width: min(1480px, 100%);
+  margin: 0 auto;
+  color: var(--text-secondary);
+}
+
+.backup-z-inner p {
+  font-size: 24px;
+  line-height: 1.42;
+  margin-bottom: 12px;
+}
+
+.backup-z-inner .eq-block {
+  font-size: 28px;
+  color: var(--text-primary);
+  margin: 10px 0 18px;
+}
+
+.pptx-mode .backup-math-card h3 { font-size: 21px !important; }
+.pptx-mode .backup-math-card p,
+.pptx-mode .backup-z-inner p { font-size: 16px !important; }
+.pptx-mode .backup-math-card .eq-block,
+.pptx-mode .backup-math-card .eq-small,
+.pptx-mode .backup-z-inner .eq-block { font-size: 18px !important; }
+
+
+.backup-math-card .eq-block mjx-container,
+.backup-z-inner .eq-block mjx-container {
+  color: var(--text-primary) !important;
+}
+
+.backup-math-card .eq-block mjx-container[display="true"],
+.backup-z-inner .eq-block mjx-container[display="true"] {
+  margin: 0.25em 0 !important;
+}
+
+.backup-math-figure-slide, .backup-z-figure-slide {
+  height: calc(100% - 96px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.backup-math-figure-grid {
+  width:min(1480px,100%);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:34px;
+}
+.backup-math-figure-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-radius: 28px;
+  padding: 22px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+}
+.backup-math-figure-card h3 {
+  font-size:32px;
+  color:var(--text-primary);
+  margin-bottom:14px;
+  font-weight:600;
+}
+.backup-math-figure-card img,
+.backup-z-figure-slide img {
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  display:block;
+}
+.backup-z-figure-slide .figure-image-wrap {
+  width:min(1500px,100%);
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.pptx-mode .backup-math-figure-card h3 { font-size:20px !important; }
+
+.backup-z-figure-slide .figure-image-wrap { width:min(1540px,100%); }
+.backup-z-figure-slide img { max-height:100%; }
+
+.backup-katex-slide {
+  height: calc(100% - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.backup-katex-grid {
+  width: min(1480px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+.backup-katex-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-radius: 28px;
+  padding: 28px 30px;
+  color: var(--text-secondary);
+}
+.backup-katex-card h3 {
+  margin: 0 0 20px 0;
+  text-align: center;
+  font-size: 34px;
+  line-height: 1.2;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.backup-katex-card p, .backup-katex-column p {
+  margin: 0 0 14px 0;
+  font-size: 24px;
+  line-height: 1.38;
+  color: var(--text-secondary);
+}
+.backup-katex-eq {
+  margin: 12px 0 22px 0;
+  color: var(--text-primary);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.backup-katex-eq .katex-display {
+  margin: 0.2em 0 !important;
+}
+.backup-katex-eq .katex {
+  font-size: 1.28em;
+}
+.backup-katex-z {
+  width: min(1500px, 100%);
+}
+.backup-katex-column {
+  color: var(--text-secondary);
+}
+.backup-katex-column .section-gap {
+  height: 8px;
+}
+.pptx-mode .backup-katex-card h3 { font-size: 22px !important; }
+.pptx-mode .backup-katex-card p, .pptx-mode .backup-katex-column p { font-size: 16px !important; }
+.pptx-mode .backup-katex-eq .katex { font-size: 0.9em !important; }
+
+
+/* Backup figure slides larger */
+.slide[data-slide="16"] .backup-figure-slide .figure-image-wrap,
+.slide[data-slide="18"] .backup-figure-slide .figure-image-wrap {
+  width: 98% !important;
+}
+
+.slide[data-slide="16"] .backup-figure-slide .figure-image,
+.slide[data-slide="18"] .backup-figure-slide .figure-image {
+  max-width: 98% !important;
+  max-height: 98% !important;
+}
+
+/* Backup equation slides larger */
+.slide[data-slide="19"] .backup-katex-grid {
+  width: min(1560px, 100%) !important;
+  gap: 24px !important;
+}
+
+.slide[data-slide="19"] .backup-katex-card {
+  padding: 24px 24px !important;
+}
+
+.slide[data-slide="19"] .backup-katex-card h3 {
+  font-size: 38px !important;
+}
+
+.slide[data-slide="19"] .backup-katex-card p,
+.slide[data-slide="20"] .backup-katex-column p {
+  font-size: 27px !important;
+  line-height: 1.34 !important;
+}
+
+.slide[data-slide="19"] .backup-katex-eq .katex,
+.slide[data-slide="20"] .backup-katex-eq .katex {
+  font-size: 1.62em !important;
+}
+
+.slide[data-slide="20"] .backup-katex-z {
+  width: min(1600px, 100%) !important;
+}
+
+.slide[data-slide="20"] .backup-katex-eq {
+  margin: 10px 0 18px 0 !important;
+}
+
+.pptx-mode .slide[data-slide="16"] .backup-figure-slide .figure-image-wrap,
+.pptx-mode .slide[data-slide="18"] .backup-figure-slide .figure-image-wrap {
+  width: 94% !important;
+}
+
+.pptx-mode .slide[data-slide="19"] .backup-katex-card h3 {
+  font-size: 24px !important;
+}
+
+.pptx-mode .slide[data-slide="19"] .backup-katex-card p,
+.pptx-mode .slide[data-slide="20"] .backup-katex-column p {
+  font-size: 18px !important;
+}
+
+.pptx-mode .slide[data-slide="19"] .backup-katex-eq .katex,
+.pptx-mode .slide[data-slide="20"] .backup-katex-eq .katex {
+  font-size: 1.08em !important;
+}
+
+
+/* Make backup figure slides use nearly full canvas */
+.slide[data-slide="16"],
+.slide[data-slide="18"] {
+  padding: 22px 18px 18px !important;
+}
+
+.slide[data-slide="16"] .backup-figure-slide,
+.slide[data-slide="18"] .backup-figure-slide {
+  height: calc(100% - 26px) !important;
+}
+
+.slide[data-slide="16"] .backup-figure-slide .figure-image-wrap,
+.slide[data-slide="18"] .backup-figure-slide .figure-image-wrap {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.slide[data-slide="16"] .backup-figure-slide .figure-image,
+.slide[data-slide="18"] .backup-figure-slide .figure-image {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
+.pptx-mode .slide[data-slide="16"],
+.pptx-mode .slide[data-slide="18"] {
+  padding: 16px 14px 14px !important;
+}
+
+.pptx-mode .slide[data-slide="16"] .backup-figure-slide,
+.pptx-mode .slide[data-slide="18"] .backup-figure-slide {
+  height: calc(100% - 18px) !important;
+}
+
+
+/* Enlarge appendix figures aggressively */
+.slide[data-slide="16"] .backup-figure-slide,
+.slide[data-slide="18"] .backup-figure-slide {
+  overflow: hidden !important;
+}
+
+.slide[data-slide="16"] .backup-figure-slide .figure-image-wrap,
+.slide[data-slide="18"] .backup-figure-slide .figure-image-wrap {
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.slide[data-slide="16"] .backup-figure-slide .figure-image,
+.slide[data-slide="18"] .backup-figure-slide .figure-image {
+  max-width: none !important;
+  max-height: none !important;
+  width: 200% !important;
+  height: auto !important;
+}
+
+.pptx-mode .slide[data-slide="16"] .backup-figure-slide .figure-image,
+.pptx-mode .slide[data-slide="18"] .backup-figure-slide .figure-image {
+  width: 185% !important;
+}
+
+
+/* Reduce appendix figures from 2x to 1.5x */
+.slide[data-slide="16"] .backup-figure-slide .figure-image,
+.slide[data-slide="18"] .backup-figure-slide .figure-image {
+  width: 150% !important;
+}
+
+.pptx-mode .slide[data-slide="16"] .backup-figure-slide .figure-image,
+.pptx-mode .slide[data-slide="18"] .backup-figure-slide .figure-image {
+  width: 145% !important;
+}
+
+
+/* Set appendix figures back to 1x */
+.slide[data-slide="16"] .backup-figure-slide .figure-image,
+.slide[data-slide="18"] .backup-figure-slide .figure-image {
+  width: 100% !important;
+}
+
+.pptx-mode .slide[data-slide="16"] .backup-figure-slide .figure-image,
+.pptx-mode .slide[data-slide="18"] .backup-figure-slide .figure-image {
+  width: 100% !important;
+}
+
+
+/* Reduce only the distribution plot on slide 17 */
+.slide[data-slide="18"] .backup-figure-slide .figure-image {
+  width: 86% !important;
+  max-width: 86% !important;
+  height: auto !important;
+  max-height: 92% !important;
+}
+
+.pptx-mode .slide[data-slide="18"] .backup-figure-slide .figure-image {
+  width: 84% !important;
+  max-width: 84% !important;
+}
+
+
+/* Title slide corner logos */
+.slide[data-slide="1"] .title-slide {
+  position: relative !important;
+}
+
+.slide[data-slide="1"] .logo-placeholder {
+  position: absolute !important;
+  top: 24px !important;
+  right: 34px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 240px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  z-index: 3 !important;
+}
+
+.slide[data-slide="1"] .logo-placeholder img {
+  max-width: 100% !important;
+  max-height: 90px !important;
+  object-fit: contain !important;
+}
+
+.slide[data-slide="1"] .ast-logo-corner {
+  position: absolute;
+  top: 24px;
+  left: 34px;
+  width: 240px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 3;
+}
+
+.slide[data-slide="1"] .ast-logo-corner img {
+  max-width: 100%;
+  max-height: 90px;
+  object-fit: contain;
+}
+
+/* Summary slide QR layout */
+.slide[data-slide="15"] .summary-content-wrap {
+  width: min(1500px, 100%);
+  height: calc(100% - 12px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 30px;
+  align-items: center;
+}
+
+.slide[data-slide="15"] .summary-block {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.slide[data-slide="15"] .summary-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide[data-slide="15"] .summary-qr img {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.96);
+  padding: 10px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.28);
+}
+
+.pptx-mode .slide[data-slide="1"] .logo-placeholder,
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner {
+  top: 16px !important;
+  width: 150px !important;
+  height: 54px !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .logo-placeholder { right: 20px !important; }
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner { left: 20px !important; }
+.pptx-mode .slide[data-slide="1"] .logo-placeholder img,
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner img {
+  max-height: 54px !important;
+}
+
+.pptx-mode .slide[data-slide="15"] .summary-content-wrap {
+  grid-template-columns: minmax(0, 1fr) 190px !important;
+  gap: 18px !important;
+}
+
+.pptx-mode .slide[data-slide="15"] .summary-qr img {
+  max-width: 180px !important;
+  padding: 6px !important;
+}
+
+
+/* Larger AST logo */
+.slide[data-slide="1"] .ast-logo-corner {
+  width: 300px !important;
+  height: 108px !important;
+}
+
+.slide[data-slide="1"] .ast-logo-corner img {
+  max-height: 108px !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner {
+  width: 180px !important;
+  height: 68px !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner img {
+  max-height: 68px !important;
+}
+
+/* Questions slide */
+.questions-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.questions-slide .questions-text {
+  font-size: 72px;
+  line-height: 1.15;
+  color: var(--text-primary);
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.pptx-mode .questions-slide .questions-text {
+  font-size: 42px !important;
+}
+
+
+/* Enlarge the second appendix figure (distribution plot) after Questions slide insertion */
+.slide[data-slide="19"] {
+  padding: 16px 12px 12px !important;
+}
+
+.slide[data-slide="19"] .backup-figure-slide {
+  height: calc(100% - 14px) !important;
+}
+
+.slide[data-slide="19"] .backup-figure-slide .figure-image-wrap {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.slide[data-slide="19"] .backup-figure-slide .figure-image {
+  width: 96% !important;
+  max-width: 96% !important;
+  max-height: 98% !important;
+  height: auto !important;
+}
+
+.pptx-mode .slide[data-slide="19"] {
+  padding: 12px 10px 10px !important;
+}
+
+.pptx-mode .slide[data-slide="19"] .backup-figure-slide .figure-image {
+  width: 92% !important;
+  max-width: 92% !important;
+}
+
+/* Slide 9 — enlarge GradCAM figure */
+.slide[data-slide="9"] .centered-figure-slide {
+  height: calc(100% - 80px) !important;
+}
+.slide[data-slide="9"] .centered-figure-slide .figure-image-wrap {
+  width: 98% !important;
+  height: 100% !important;
+}
+.slide[data-slide="9"] .centered-figure-slide .figure-image {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+/* Slide 5: maximize architecture plot to close gap with DESI plot */
+.slide[data-slide="5"] .slide5-left {
+  padding-top: 4px !important;
+  justify-content: flex-start !important;
+}
+.slide[data-slide="5"] .slide5-text {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+.slide[data-slide="5"] .slide5-arch {
+  padding-top: 6px !important;
+  align-items: flex-start !important;
+  flex: 1 1 auto !important;
+}
+.slide[data-slide="5"] .slide5-arch .figure-image-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+}
+.slide[data-slide="5"] .slide5-arch .figure-image {
+  width: 100% !important;
+  max-height: 560px !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+        /* Slide 17 - BGS Autoencoder backup slide */
+        .slide[data-slide="17"] { padding: 22px 18px 18px !important; }
+        .slide[data-slide="17"] .backup-figure-slide { height: calc(100% - 26px) !important; overflow: hidden !important; }
+        .slide[data-slide="17"] .backup-figure-slide .figure-image-wrap { width: 100% !important; height: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; }
+        .slide[data-slide="17"] .backup-figure-slide .figure-image { width: 100% !important; height: auto !important; max-width: 100% !important; max-height: 100% !important; object-fit: contain !important; }
+        
+        </style>
+<link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet"/></head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="presentation-container">
+<div class="slide active" data-slide="1">
+<div class="title-slide">
+<div class="accent-line"></div>
+<div class="main-title">Revolutionizing Extragalactic Spectroscopy: Leveraging Transformer-Based Models for Automated Redshift Prediction</div>
+<div class="accent-line"></div>
+<div class="subtitle">
+<strong>Clive K. Binu</strong> | Rochester Institute of Technology<br/>
+      Advisor: <strong>Dr. Jeyhan Kartaltepe</strong>
+</div>
+</div>
+<div class="logo-placeholder"><img alt="RIT logo" src="figs/RIT_1505C_hor.jpg"/></div>
+<div class="slide-number">1</div>
+<div class="ast-logo-corner"><img alt="AST logo" src="figs/ast_logo.png"/></div></div>
+<div class="slide" data-slide="2">
+<div class="slide-title">Understanding Galaxy Evolution</div>
+<div class="slide2-hero">
+<div class="hero-figure">
+<div class="figure-frame"><img alt="Galaxy evolution illustration" src="figs/galaxy_evolution.png"/><div class="credit-inline">Credit: NAOJ</div></div></div>
+<div class="hero-text">
+<div class="content">
+<ul class="bullets"><li>Galaxies <strong>form, grow, and transform</strong> across cosmic time</li><li>Key drivers include <strong>star formation</strong>, mergers, gas, and environment</li><li>Redshift let us compare galaxies across epochs</li></ul>
+</div>
+</div>
+</div>
+<div class="slide-number">2</div>
+</div>
+<div class="slide slide3-large" data-slide="3">
+<div class="slide-title">Redshift Connects Galaxies to Cosmic Time</div>
+<div class="split-layout">
+<div class="left-content">
+<div class="content">
+<ul class="bullets"><li><strong>Redshift</strong> tells us distance and cosmic epoch</li><li><strong>Spectroscopy</strong> measures emission and absorption lines</li><li>Line shifts reveal redshift and physical context</li></ul>
+</div>
+</div>
+<div class="right-figure">
+<div class="full-figure-wrap">
+<div class="figure-frame"><img alt="Spectroscopy and spectra illustration" src="figs/spectroscopy_spectra.png"/><div class="credit-inline">Credit: NASA, ESA, CSA, and STScI</div></div></div>
+</div>
+</div>
+<div class="slide-number">3</div>
+</div>
+<div class="slide" data-slide="4">
+<div class="slide-title">Traditional Methods Break at Survey Scale</div>
+<div class="comparison-wrap">
+<div style="width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Method</th>
+<th>How it works</th>
+<th>Why it breaks at scale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="method">Visual Inspection</td>
+<td><ul class="table-bullets"><li>Experts manually inspect spectral features</li></ul></td>
+<td><ul class="table-bullets"><li>Slow and labor intensive</li><li>Not realistic for survey-scale samples</li></ul></td>
+</tr>
+<tr>
+<td class="method">Cross-Correlation<br/>(e.g., Redrock)</td>
+<td><ul class="table-bullets"><li>Matches spectra to predefined templates</li></ul></td>
+<td><ul class="table-bullets"><li>Weak on noisy or low-resolution spectra</li><li>Misses unusual cases outside template diversity</li></ul></td>
+</tr>
+</tbody>
+</table>
+<div style="width:min(980px,100%); margin-top:18px;">
+<ul class="bullets" style="margin:0;"><li>With the exponential growth of datasets from facilities such as Roman, Euclid, and JWST, these methods are increasingly impractical for processing millions of spectra efficiently.</li></ul>
+</div>
+</div>
+</div>
+<div class="slide-number">4</div>
+</div>
+<div class="slide" data-slide="5">
+<div class="slide-title">SpecPT: Pre-trained on DESI Spectra</div>
+<div class="slide5-two-col">
+<div class="slide5-left">
+<div class="slide5-text">
+<div class="content">
+<ul class="bullets"><li>SpecPT is trained on <strong>0.5 million DESI spectra</strong></li><li>Learns spectral features predictive of redshift</li></ul>
+</div>
+</div>
+<div class="slide5-arch">
+<div class="figure-image-wrap">
+<img alt="SpecPT architecture from paper" class="figure-image" src="figs/SpecPT_architecture_paper_2.png"/>
+<div class="credit-inline">Credit: Pattnaik, Kartaltepe &amp; Binu 2025</div>
+</div>
+</div>
+</div>
+<div class="slide5-desi">
+<div class="figure-image-wrap">
+<img alt="DESI redshift prediction plot" class="figure-image" src="figs/DESI_combined_density.png"/>
+<div class="credit-inline">Credit: Pattnaik, Kartaltepe &amp; Binu 2025</div>
+</div>
+</div>
+</div>
+<div class="slide-number">5</div>
+</div>
+<div class="slide slide6-large" data-slide="6">
+<div class="slide-title">Transfer Learning Bridges Instruments</div>
+<div class="split-layout">
+<div class="left-content">
+<div class="content">
+<ul class="bullets"><li>Pre-trained model learns reusable spectral features</li><li><strong>Fine-tuning</strong> adapts those features to a new instrument</li><li>Transfer learning enables DESI-to-grism generalization</li></ul>
+</div>
+</div>
+<div class="right-figure">
+<div class="full-figure-wrap">
+<img alt="Transfer learning diagram" src="figs/transfer_learning.png"/>
+<div class="credit-inline">Credit: medium.com</div></div>
+</div>
+</div>
+<div class="slide-number">6</div>
+</div>
+<div class="slide" data-slide="7">
+<div class="slide-title">Fine-Tuning SpecPT on 3D-HST Grism Data</div>
+<div class="split-layout">
+<div class="left-content">
+<div class="content">
+<ul class="bullets">
+<li>Fine-tuning on HST grism data helps extend SpecPT to current and future slitless instruments such as <strong>JWST, Roman, and Euclid</strong></li>
+<li>3D-HST G141 grism operates at <strong>R~130</strong></li>
+<li>After a quality cut of <strong>SNR &gt;= 2.5</strong>, the usable sample contains <strong>~8,000 spectra</strong></li>
+<li>Applied data augmentation techniques to increase the dataset size <strong>~100,000 spectra</strong></li>
+</ul>
+</div>
+</div>
+<div class="right-figure">
+<div class="figure-image-wrap">
+<img alt="3D-HST grism spectra example" class="figure-image" src="figs/spectra_comparison.png"/>
+</div>
+</div>
+</div>
+<div class="slide-number">7</div>
+</div><div class="slide" data-slide="8">
+<div class="slide-title">Results on HST Grism Data</div>
+<div class="slide8-centered">
+<div class="figure-image-wrap">
+<img alt="3D-HST grism redshift results" class="figure-image" src="figs/HST_results.png"/>
+</div>
+</div>
+<div class="slide-number">8</div>
+</div><div class="slide" data-slide="9">
+<div class="slide-title">GradCAM Reveals What the Model Uses</div>
+<div class="centered-figure-slide"><div class="figure-image-wrap"><img alt="HST spectrum plot" class="figure-image" src="figs/hst_spectrum_IG.png"/></div></div>
+<div class="slide-number">9</div>
+</div><div class="slide" data-slide="10">
+<div class="slide-title">GradCAM Reveals What the Model Uses</div>
+<div class="centered-figure-slide"><div class="figure-image-wrap"><img alt="IG plot" class="figure-image" src="figs/IG.png"/></div></div>
+<div class="slide-number">10</div>
+</div><div class="slide" data-slide="11">
+<div class="slide-title">Examining Outliers</div>
+<div class="centered-figure-slide"><div class="figure-image-wrap"><img alt="HST grism results with highlighted outliers" class="figure-image" src="figs/HST_results_box.png"/></div></div>
+<div class="slide-number">11</div>
+</div><div class="slide slide9-flow" data-slide="12">
+<div class="slide-title">Breaking Emission Line Degeneracy with Photometry</div>
+<div class="split-layout">
+<div class="left-content">
+<div class="content">
+<ul class="bullets">
+<li>Diagonal artifacts are driven by <strong>single-line misidentification</strong></li>
+<li>Strategic field selection targets five CANDELS extragalactic fields: <strong>AEGIS, COSMOS, GOODS-S, UDS, GOODS-N</strong></li>
+</ul>
+</div>
+</div>
+<div class="right-figure">
+<div class="figure-image-wrap">
+<img alt="Photometric pipeline and arbiter model diagram" class="figure-image" src="figs/photo_z_pipline.png"/>
+</div>
+</div>
+</div>
+<div class="slide-number">12</div>
+</div><div class="slide" data-slide="13">
+<div class="slide-title">Photometry Results</div>
+<div class="slide8-centered">
+<div class="figure-image-wrap">
+<img alt="Photometry-corrected redshift results" class="figure-image" src="figs/photo_z_corrected.png"/>
+</div>
+</div>
+<div class="slide-number">13</div>
+</div>
+<div class="slide slide12-centered" data-slide="14">
+<div class="slide-title">Next Steps</div>
+<div class="content" style="margin-bottom: 24px;">
+<ul class="bullets">
+<li>Apply fine-tuned <strong>SpecPT</strong> to data from telescopes such as <strong>Euclid</strong></li>
+<li>Combine the <strong>photometry CNN</strong> and <strong>arbiter model</strong> into a single unified model</li>
+<li>Extend the capabilities of <strong>SpecPT</strong> to other predictions such as <strong>SFR</strong> estimation and <strong>AGN classification</strong></li>
+</ul>
+</div>
+<div class="slide-number">14</div>
+</div><div class="slide slide12-centered" data-slide="15"><div class="slide-title">Summary</div><div class="content" style="margin-bottom: 24px;"><div class="summary-content-wrap"><div class="summary-block"><ul class="summary-main"><li>SpecPT transfers effectively from DESI to HST grism data<ul class="summary-sub"><li>η decreased by 86.0% (65.23% → 9.11%)</li><li>NMAD decreased by 98.8% (0.3214 → 0.0037)</li></ul></li><li>Photometric data further improves the final predictions<ul class="summary-sub"><li>η decreased by 75.7% (9.11% → 2.21%)</li><li>NMAD increased by 13.5% (0.0037 → 0.0042)</li></ul></li><li>GradCAM highlights spectral regions that drive predictions</li></ul></div><div class="summary-qr"><img alt="SpecPT paper QR code" src="figs/SpecPT_paper_qr_code.png"/></div></div></div><div class="slide-number">15</div></div><div class="slide questions-slide" data-slide="16"><div class="slide-title"></div><div class="questions-text">Questions ?</div><div class="slide-number">16</div></div><div class="slide" data-slide="17"><div class="slide-title"></div><div class="backup-figure-slide"><div class="figure-image-wrap"><img alt="BGS Autoencoder Examples" class="figure-image" src="figs/BGS_autoencoder_examples.png"/></div></div><div class="slide-number">17</div></div>
+<div class="slide" data-slide="18"><div class="slide-title"></div><div class="backup-figure-slide"><div class="figure-image-wrap"><img alt="Augmented example" class="figure-image" src="figs/Augmented_example.png"/></div></div><div class="slide-number">18</div></div><div class="slide" data-slide="19"><div class="slide-title"></div><div class="backup-figure-slide"><div class="figure-image-wrap"><img alt="Augmented versus original data distribution" class="figure-image" src="figs/augmented_vs_orignal_data_distribution.png"/></div></div><div class="slide-number">19</div></div><div class="slide" data-slide="20"><div class="slide-title"></div><div class="backup-katex-slide"><div class="backup-katex-grid"><div class="backup-katex-card"><h3>NMAD</h3><p>The Normalized Median Absolute Deviation is given as,</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">D</mi></mrow><mo>=</mo><mn>1.4826</mn><mo>×</mo><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi></mrow><mo stretchy="false">(</mo><mi mathvariant="normal">∣</mi><mi mathvariant="normal">Δ</mi><mi>z</mi><mi mathvariant="normal">∣</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{NMAD} = 1.4826 \times \mathrm{median}(|\Delta z|)</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord"><span class="mord mathrm">NMAD</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.4826</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathrm">median</span></span><span class="mopen">(</span><span class="mord">∣Δ</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mord">∣</span><span class="mclose">)</span></span></span></span></span></div><p>Where,</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>z</mi><mo>=</mo><mfrac><mrow><msub><mi>z</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>−</mo><msub><mi>z</mi><mrow><mi>s</mi><mi>p</mi><mi>e</mi><mi>c</mi></mrow></msub></mrow><mrow><mn>1</mn><mo>+</mo><msub><mi>z</mi><mrow><mi>s</mi><mi>p</mi><mi>e</mi><mi>c</mi></mrow></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">\Delta z = \frac{z_{pred} - z_{spec}}{1 + z_{spec}}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2324em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.2603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">ec</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">re</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">ec</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div></div><div class="backup-katex-card"><h3>Catastrophic Outlier Fraction</h3><p>The catastrophic outlier fraction is given as follows (Ilbert et al. 2009).</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mfrac><mrow><mtext>Number of predictions with </mtext><mi mathvariant="normal">∣</mi><mi mathvariant="normal">Δ</mi><mi>z</mi><mi mathvariant="normal">∣</mi><mo>&gt;</mo><mn>0.15</mn></mrow><mtext>Total number of predictions</mtext></mfrac><mo>×</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">\eta = \frac{\text{Number of predictions with } |\Delta z| &gt; 0.15}{\text{Total number of predictions}} \times 100</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">η</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.3074em;vertical-align:-0.8804em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">Total number of predictions</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">Number of predictions with </span></span><span class="mord">∣Δ</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mord">∣</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0.15</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">100</span></span></span></span></span></div></div></div></div><div class="slide-number">20</div></div><div class="slide" data-slide="21"><div class="slide-title"></div><div class="backup-katex-slide"><div class="backup-katex-z backup-katex-column"><p>Converting wavelength to the new wavelength</p><p>We have,</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mfrac><mrow><msub><mi>λ</mi><mrow><mi>o</mi><mi>b</mi><mi>s</mi></mrow></msub><mo>−</mo><msub><mi>λ</mi><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mrow><msub><mi>λ</mi><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">z = \frac{\lambda_{obs} - \lambda_{rest}}{\lambda_{rest}}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2074em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">res</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">b</span><span class="mord mathnormal mtight">s</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">res</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>×</mo><msub><mi>λ</mi><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>λ</mi><mrow><mi>o</mi><mi>b</mi><mi>s</mi></mrow></msub><mo>−</mo><msub><mi>λ</mi><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">z \times \lambda_{rest} = \lambda_{obs} - \lambda_{rest}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">res</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">b</span><span class="mord mathnormal mtight">s</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">res</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></div><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>+</mo><mn>1</mn><mo>=</mo><mfrac><msub><mi>λ</mi><mrow><mi>o</mi><mi>b</mi><mi>s</mi></mrow></msub><msub><mi>λ</mi><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">z + 1 = \frac{\lambda_{obs}}{\lambda_{rest}}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2074em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">res</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">b</span><span class="mord mathnormal mtight">s</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div><p>For a shifted redshift, we have</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>+</mo><mn>1</mn><mo>=</mo><mfrac><msub><mi>λ</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><msub><mi>λ</mi><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">z_{new} + 1 = \frac{\lambda_{new}}{\lambda_{rest}}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.7333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2074em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">res</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div><p>Substituting for the rest-frame wavelength gives</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msub><mi>λ</mi><mrow><mi>o</mi><mi>b</mi><mi>s</mi></mrow></msub><mrow><mn>1</mn><mo>+</mo><mi>z</mi></mrow></mfrac><mo>=</mo><mfrac><msub><mi>λ</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mrow><mn>1</mn><mo>+</mo><msub><mi>z</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{\lambda_{obs}}{1 + z} = \frac{\lambda_{new}}{1 + z_{new}}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:2.1408em;vertical-align:-0.7693em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">b</span><span class="mord mathnormal mtight">s</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7693em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2074em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>=</mo><mfrac><msub><mi>λ</mi><mrow><mi>o</mi><mi>b</mi><mi>s</mi></mrow></msub><mrow><mn>1</mn><mo>+</mo><mi>z</mi></mrow></mfrac><mo>×</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><msub><mi>z</mi><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\lambda_{new} = \frac{\lambda_{obs}}{1 + z} \times (1 + z_{new})</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1408em;vertical-align:-0.7693em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">b</span><span class="mord mathnormal mtight">s</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7693em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></div></div></div><div class="slide-number">21</div></div>
+</div>
+<script>
+  let currentSlide = 1;
+  const totalSlides = 21;
+  const slides = document.querySelectorAll('.slide');
+  const progressBar = document.getElementById('progressBar');
+
+  updateSlide();
+
+  function changeSlide(direction) {
+    const newSlide = currentSlide + direction;
+    if (newSlide >= 1 && newSlide <= totalSlides) {
+      currentSlide = newSlide;
+      updateSlide();
+    }
+  }
+
+  function updateSlide() {
+    slides.forEach((slide, index) => {
+      const slideNum = index + 1;
+      slide.classList.remove('active', 'prev');
+      if (slideNum === currentSlide) {
+        slide.classList.add('active');
+      } else if (slideNum < currentSlide) {
+        slide.classList.add('prev');
+      }
+    });
+    const progress = totalSlides > 1 ? ((currentSlide - 1) / (totalSlides - 1)) * 100 : 100;
+    progressBar.style.width = progress + '%';
+    window.location.hash = currentSlide;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      changeSlide(1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      changeSlide(-1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      currentSlide = 1;
+      updateSlide();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      currentSlide = totalSlides;
+      updateSlide();
+    }
+  });
+
+  window.addEventListener('load', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && !isNaN(hash) && parseInt(hash) >= 1 && parseInt(hash) <= totalSlides) {
+      currentSlide = parseInt(hash);
+      updateSlide();
+    }
+  });
+
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+
+  document.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) changeSlide(1);
+      else changeSlide(-1);
+    }
+  }
+
+  window.addEventListener('keydown', function(e) {
+    if(e.keyCode === 32 && e.target === document.body) {
+      e.preventDefault();
+    }
+  });
+</script>
+<script>
+(function () {
+  const BASE_W = 1920;
+  const BASE_H = 1080;
+  function fitDeck() {
+    const scale = Math.min(window.innerWidth / BASE_W, window.innerHeight / BASE_H);
+    document.documentElement.style.setProperty('--deck-scale', scale);
+  }
+  window.addEventListener('resize', fitDeck);
+  window.addEventListener('load', fitDeck);
+  fitDeck();
+})();
+</script></body>
+</html>

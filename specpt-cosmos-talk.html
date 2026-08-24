@@ -1,0 +1,3998 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="viewport" name="slides-format"/>
+<title>SpecPT - Clive K. Binu | NOIRLab</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #1e293b;
+    --accent: #06B6D4;
+    --accent-dim: rgba(6, 182, 212, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-cyan: #06B6D4;
+    --placeholder-bg: rgba(148, 163, 184, 0.1);
+    --placeholder-border: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background:
+      radial-gradient(circle at 16% 18%, rgba(34, 211, 238, 0.14) 0%, rgba(34, 211, 238, 0.04) 16%, transparent 34%),
+      radial-gradient(circle at 78% 20%, rgba(96, 165, 250, 0.12) 0%, rgba(96, 165, 250, 0.03) 18%, transparent 34%),
+      radial-gradient(circle at 60% 76%, rgba(168, 85, 247, 0.10) 0%, rgba(168, 85, 247, 0.03) 16%, transparent 30%),
+      linear-gradient(135deg, rgba(59,130,246,0.10) 0%, rgba(59,130,246,0.00) 28%),
+      linear-gradient(180deg, #020817 0%, #04112a 56%, #020617 100%);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 10% 14%, rgba(255,255,255,0.90) 0 1.1px, transparent 2.4px),
+      radial-gradient(circle at 26% 30%, rgba(255,255,255,0.80) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 43% 16%, rgba(255,255,255,0.82) 0 1.15px, transparent 2.5px),
+      radial-gradient(circle at 68% 24%, rgba(255,255,255,0.78) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 86% 15%, rgba(255,255,255,0.90) 0 1.15px, transparent 2.5px),
+      radial-gradient(circle at 79% 55%, rgba(255,255,255,0.74) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 18% 74%, rgba(255,255,255,0.76) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 34% 84%, rgba(255,255,255,0.64) 0 0.95px, transparent 2.0px),
+      radial-gradient(circle at 58% 76%, rgba(255,255,255,0.78) 0 1px, transparent 2.2px),
+      radial-gradient(circle at 92% 72%, rgba(255,255,255,0.70) 0 0.95px, transparent 2.1px),
+      radial-gradient(circle at 48% 48%, rgba(255,255,255,0.42) 0 0.8px, transparent 1.8px),
+      radial-gradient(circle at 72% 88%, rgba(255,255,255,0.48) 0 0.85px, transparent 1.9px),
+      radial-gradient(circle at 7% 90%, rgba(255,255,255,0.40) 0 0.8px, transparent 1.8px),
+      radial-gradient(circle at 62% 10%, rgba(255,255,255,0.56) 0 0.9px, transparent 2px),
+      radial-gradient(circle at 90% 42%, rgba(255,255,255,0.54) 0 0.9px, transparent 2px),
+      linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.015) 35%, rgba(255,255,255,0.035) 48%, rgba(255,255,255,0.015) 61%, transparent 100%);
+    opacity: 0.72;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 24% 28%, rgba(34,211,238,0.10) 0%, rgba(34,211,238,0.03) 18%, transparent 42%),
+      radial-gradient(ellipse at 72% 68%, rgba(168,85,247,0.08) 0%, rgba(168,85,247,0.02) 16%, transparent 36%),
+      linear-gradient(125deg, transparent 0%, rgba(88, 28, 135, 0.03) 38%, rgba(14, 165, 233, 0.05) 50%, rgba(88, 28, 135, 0.03) 62%, transparent 100%);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .presentation-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .slide {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: transparent;
+    border-top: none;
+    padding: 66px 56px 60px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+    transform: translateX(50px);
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    z-index: 10;
+  }
+
+  .slide.prev {
+    transform: translateX(-50px);
+  }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      linear-gradient(180deg, rgba(2, 6, 23, 0.36) 0%, rgba(2, 6, 23, 0.52) 100%),
+      radial-gradient(ellipse at 15% 85%, rgba(6,182,212,0.04) 0%, transparent 52%),
+      radial-gradient(ellipse at 82% 18%, rgba(59,130,246,0.04) 0%, transparent 42%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .slide > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .slide-number {
+    position: absolute;
+    bottom: 20px;
+    right: 28px;
+    font-size: 23px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .slide-title {
+    font-size: 31px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  .content { font-size: 23px; line-height: 1.7; color: var(--text-primary); }
+
+  ul.bullets {
+    list-style: none;
+    padding: 0;
+  }
+
+  ul.bullets li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 14px;
+    font-size: 23px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  ul.bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .two-col {
+    display: flex;
+    gap: 32px;
+    height: calc(100% - 120px);
+  }
+
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .col-card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 24px;
+    flex: 1;
+    border-left: 3px solid var(--accent);
+  }
+
+  .col-card h3 {
+    font-size: 23px;
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .col-card ul.bullets li { font-size: 21px; margin-bottom: 10px; }
+
+  .callout {
+    background: var(--accent-dim);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 6px;
+    margin-top: auto;
+    font-size: 21px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .figure-placeholder {
+    background: var(--placeholder-bg);
+    border: 2px dashed var(--placeholder-border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 23px;
+    font-style: italic;
+    min-height: 380px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .figure-placeholder.small {
+    min-height: 200px;
+  }
+
+  .credit {
+    font-size: 21px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    text-align: right;
+    font-style: italic;
+  }
+
+  .title-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    padding-top: 78px;
+  }
+
+  .title-slide .main-title {
+    font-size: 35px;
+    font-weight: 700;
+    color: var(--text-primary);
+    max-width: 900px;
+    line-height: 1.35;
+    margin-bottom: 36px;
+  }
+
+  .title-slide .accent-line {
+    width: 80px;
+    height: 3px;
+    background: var(--accent);
+    margin: 0 auto 32px;
+  }
+
+  .title-slide .subtitle {
+    font-size: 21px;
+    color: var(--text-secondary);
+    margin-bottom: 48px;
+    line-height: 1.8;
+  }
+
+  .title-slide .subtitle strong { color: var(--accent); }
+
+  .title-slide .collab-note {
+    font-size: 23px;
+    color: var(--text-muted);
+    margin-top: 32px;
+  }
+
+  .logo-placeholder {
+    position: absolute;
+    bottom: 70px;
+    left: 56px;
+    width: 120px;
+    height: 60px;
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed var(--text-muted);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .split-layout {
+    display: flex;
+    gap: 40px;
+    height: calc(100% - 100px);
+  }
+
+  .split-layout .left-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 16px;
+  }
+
+  .split-layout .right-figure {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .two-panel {
+    display: flex;
+    gap: 32px;
+    height: calc(100% - 110px);
+  }
+
+  .panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-label {
+    font-size: 23px;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .ack-box {
+    position: absolute;
+    bottom: 56px;
+    left: 56px;
+    right: 56px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 16px 24px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .ack-box .ack-title {
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .ack-box p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .metric-callout {
+    display: inline-block;
+    background: var(--accent-dim);
+    border: 1px solid rgba(6,182,212,0.3);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 16px;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  .metric-callout strong {
+    color: var(--text-primary);
+  }
+
+  .pipeline-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 16px 0;
+    font-size: 23px;
+    color: var(--text-muted);
+  }
+
+  .pipeline-arrow .arrow {
+    font-size: 24px;
+    color: var(--accent);
+  }
+
+  .pipeline-arrow .node {
+    background: var(--bg-card);
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), #67e8f9);
+    transition: width 0.3s ease;
+    z-index: 1001;
+  }
+
+
+
+  .table-bullets {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-secondary);
+  }
+
+  .table-bullets li {
+    margin-bottom: 8px;
+  }
+
+  .table-bullets li:last-child {
+    margin-bottom: 0;
+  }
+
+  .comparison-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100% - 130px);
+  }
+
+
+  .comparison-table {
+    width: min(980px, 100%);
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.92);
+    border: 1px solid rgba(6,182,212,0.28);
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 18px 20px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(148,163,184,0.18);
+    color: var(--text-secondary);
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .comparison-table th {
+    color: var(--accent);
+    font-weight: 700;
+    background: rgba(6,182,212,0.08);
+  }
+
+  .comparison-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .comparison-table .method {
+    width: 32%;
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  .comparison-note {
+    width: min(980px, 100%);
+    margin: 22px auto 0;
+    text-align: center;
+  }
+
+
+  .panel-bottom-box {
+    width: 100%;
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .results-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+
+  .results-callout {
+    margin-top: 0;
+    align-self: stretch;
+  }
+
+  .results-note {
+    margin-top: 14px;
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+
+  .title-slide .collab-note {
+    display: none;
+  }
+
+  .logo-placeholder {
+    position: absolute;
+    bottom: 58px;
+    left: 56px;
+    width: 170px;
+    height: auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    display: block;
+    padding: 0;
+  }
+
+  .logo-placeholder img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .facility-figure {
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid rgba(100, 116, 139, 0.55);
+    border-radius: 10px;
+    padding: 14px 14px 10px;
+  }
+
+  .facility-figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+  }
+
+  .facility-note {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .pptx-mode .logo-placeholder {
+    width: 130px !important;
+    bottom: 34px !important;
+    left: 34px !important;
+  }
+
+  .pptx-mode .facility-note {
+    font-size: 11px !important;
+  }
+
+
+  .figure-image-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .figure-image {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+  }
+
+  .credit-inline {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: right;
+    font-style: italic;
+  }
+
+  .slide6-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    height: calc(100% - 110px);
+  }
+
+  .slide6-top {
+    display: flex;
+    gap: 40px;
+    min-height: 0;
+    flex: 1;
+  }
+
+  .slide6-bottom {
+    flex: 0 0 185px;
+    min-height: 185px;
+  }
+
+  .slide6-bottom .figure-placeholder,
+  .slide6-bottom .figure-image-wrap {
+    min-height: 185px;
+    height: 100%;
+  }
+
+  .pptx-mode .slide6-stack { gap: 12px !important; height: calc(100% - 84px) !important; }
+  .pptx-mode .slide6-bottom { flex-basis: 120px !important; min-height: 120px !important; }
+  .pptx-mode .slide6-bottom .figure-placeholder,
+  .pptx-mode .slide6-bottom .figure-image-wrap { min-height: 120px !important; }
+  .pptx-mode .credit-inline { font-size: 11px !important; }
+
+
+  .slide5-clean .pipeline-arrow {
+    display: none;
+  }
+
+  .slide6-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.95fr;
+    grid-template-rows: auto 1fr;
+    column-gap: 26px;
+    row-gap: 16px;
+    height: calc(100% - 96px);
+    align-items: start;
+  }
+
+  .slide6-text {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    padding-right: 4px;
+  }
+
+  .slide6-text .content {
+    font-size: 21px;
+  }
+
+  .slide6-text ul.bullets li {
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .slide6-desi {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    min-width: 0;
+  }
+
+  .slide6-arch {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    min-width: 0;
+  }
+
+  .slide6-desi .figure-image-wrap,
+  .slide6-arch .figure-image-wrap {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    gap: 8px;
+  }
+
+  .slide6-desi .figure-image-wrap {
+    width: fit-content;
+    max-width: 100%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .slide6-desi .figure-image {
+    width: auto;
+    max-width: 100%;
+    max-height: 600px;
+    object-fit: contain;
+  }
+
+  .slide6-arch .figure-image {
+    width: 100%;
+    max-height: 290px;
+    object-fit: contain;
+  }
+
+  .slide6-desi .credit-inline,
+  .slide6-arch .credit-inline {
+    font-size: 13px;
+    text-align: right;
+  }
+
+  .slide6-desi .credit-inline {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+    box-sizing: border-box;
+    text-align: left;
+    align-self: stretch;
+    font-size: 12px;
+  }
+
+  .slide6-arch .credit-inline {
+    text-align: left;
+  }
+
+  .pptx-mode .slide6-grid {
+    grid-template-columns: 1.1fr 0.9fr !important;
+    column-gap: 18px !important;
+    row-gap: 10px !important;
+    height: calc(100% - 82px) !important;
+  }
+
+  .pptx-mode .slide6-text .content,
+  .pptx-mode .slide6-text ul.bullets li {
+  font-size: 18px !important;
+    line-height: 1.42 !important;
+  }
+
+  .pptx-mode .slide6-text ul.bullets li {
+    margin-bottom: 12px !important;
+  }
+
+  .pptx-mode .slide6-desi .figure-image {
+    max-height: 300px !important;
+  }
+
+  .pptx-mode .slide6-arch .figure-image {
+    max-height: 145px !important;
+  }
+
+  .pptx-mode .slide6-desi .credit-inline,
+  .pptx-mode .slide6-arch .credit-inline {
+    font-size: 11px !important;
+  }
+
+
+  .slide8-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 110px);
+  }
+
+  .slide8-centered .figure-image-wrap {
+    width: 86%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .slide8-centered .figure-image {
+    width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .pptx-mode .slide8-centered .figure-image-wrap {
+    width: 84% !important;
+  }
+
+
+  .full-figure-wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .full-figure-wrap img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .slide[data-slide="999"] .telescope-figure {
+    width: 100%;
+    height: 92vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: -12px auto 0;
+  }
+
+  .slide[data-slide="999"] .telescope-figure img {
+    max-width: 96%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .slide[data-slide="999"] .slide-title {
+    margin-bottom: 8px;
+  }
+
+  .slide[data-slide="999"] .chart-wrap {
+    width: 100%;
+    height: calc(100% - 92px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .slide[data-slide="999"] .chart-wrap svg {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .volume-table-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+  }
+
+  .volume-table {
+    border-collapse: collapse;
+    width: min(820px, 90%);
+    font-size: 22px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .volume-table thead th {
+    background: var(--accent);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 16px 24px;
+    text-align: left;
+    font-size: 24px;
+    letter-spacing: 0.5px;
+  }
+
+  .volume-table tbody td {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+  }
+
+  .volume-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .volume-table .telescope-name {
+    font-weight: 700;
+    color: var(--accent);
+    width: 30%;
+  }
+
+  .slide5-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-rows: auto 1fr;
+    column-gap: 26px;
+    row-gap: 14px;
+    height: calc(100% - 96px);
+    align-items: start;
+  }
+
+  .slide5-text {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .slide5-desi {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .slide5-desi .figure-image-wrap {
+    width: 88%;
+    max-width: 88%;
+    gap: 6px;
+  }
+
+  .slide5-desi .figure-image {
+    width: 100%;
+    max-height: 330px;
+    object-fit: contain;
+  }
+
+  .slide5-arch {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .slide5-arch .figure-image-wrap {
+    width: 72%;
+    gap: 6px;
+  }
+
+  .slide5-arch .figure-image {
+    width: 100%;
+    max-height: 285px;
+    object-fit: contain;
+  }
+
+  .slide9-flow .left-content {
+    flex: 0.88;
+  }
+
+  .slide9-flow .right-figure {
+    flex: 1.12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide9-flow .figure-image-wrap {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+  }
+
+  .slide9-flow .figure-image {
+    width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .pptx-mode .slide5-grid {
+    column-gap: 18px !important;
+    row-gap: 10px !important;
+    height: calc(100% - 82px) !important;
+  }
+
+  .pptx-mode .slide5-desi .figure-image {
+    max-height: 215px !important;
+  }
+
+  .pptx-mode .slide5-arch .figure-image-wrap {
+    width: 76% !important;
+  }
+
+  .pptx-mode .slide5-arch .figure-image {
+    max-height: 150px !important;
+  }
+
+
+  .slide2-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: calc(100% - 96px);
+  }
+
+  .slide2-hero .hero-figure {
+    flex: 1.42;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+
+  .slide2-hero .hero-figure img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  .slide2-hero .hero-text {
+    flex: 0.58;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .slide2-hero .hero-text .content {
+    font-size: 21px;
+    line-height: 1.55;
+  }
+
+  .slide2-hero .hero-text ul.bullets li {
+    margin-bottom: 8px;
+    line-height: 1.45;
+  }
+
+  .slide3-large .right-figure {
+    flex: 1.32;
+  }
+
+  .slide3-large .left-content {
+    flex: 0.68;
+    padding-right: 6px;
+  }
+
+  .slide3-large .full-figure-wrap {
+    justify-content: center;
+    height: 100%;
+  }
+
+  .slide3-large .full-figure-wrap img {
+    width: 100%;
+    max-height: 520px;
+  }
+
+  .slide5-two-col {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    column-gap: 24px;
+    height: calc(100% - 92px);
+    align-items: stretch;
+  }
+
+  .slide5-left {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .slide5-text {
+    flex: 0 0 auto;
+    padding-right: 2px;
+  }
+
+  .slide5-text .content {
+    font-size: 21px;
+  }
+
+  .slide5-text ul.bullets li {
+    margin-bottom: 12px;
+    line-height: 1.46;
+  }
+
+  .slide5-arch {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 12px;
+    min-height: 0;
+  }
+
+  .slide5-arch .figure-image-wrap {
+    width: 100%;
+    max-width: 100%;
+    gap: 3px;
+  }
+
+  .slide5-arch .figure-image {
+    width: 100%;
+    max-height: 275px;
+    object-fit: contain;
+  }
+
+  .slide5-arch .credit-inline {
+    text-align: right;
+    font-size: 12px;
+  }
+
+  .slide5-desi {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .slide5-desi .figure-image-wrap {
+    width: fit-content;
+    height: 100%;
+    max-width: 100%;
+    gap: 3px;
+    justify-content: flex-start;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .slide5-desi .figure-image {
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
+    min-height: 500px;
+    object-fit: contain;
+  }
+
+  .slide5-desi .credit-inline {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    align-self: stretch;
+    font-size: 12px;
+  }
+
+  .slide6-large .right-figure {
+    flex: 1.2;
+  }
+
+  .slide6-large .left-content {
+    flex: 0.8;
+  }
+
+  .slide6-large .full-figure-wrap img {
+    max-height: 470px;
+  }
+
+  .slide12-centered .content {
+    height: calc(100% - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide12-centered .bullets {
+    width: min(980px, 100%);
+  }
+
+  .slide12-centered .bullets {
+    margin: 0 auto;
+  }
+
+  .slide12-centered .bullets li {
+    text-align: left;
+    padding-left: 42px;
+  }
+
+  .slide12-centered .bullets li::before {
+    display: block;
+  }
+
+  .pptx-mode .slide2-hero { gap: 10px !important; height: calc(100% - 86px) !important; }
+  .pptx-mode .slide3-large .full-figure-wrap img { max-height: 250px !important; }
+  .pptx-mode .slide5-two-col { column-gap: 16px !important; height: calc(100% - 82px) !important; }
+  .pptx-mode .slide5-desi .figure-image { min-height: 0 !important; max-height: 290px !important; }
+  .pptx-mode .slide5-arch { padding-top: 8px !important; }
+  .pptx-mode .slide5-arch .figure-image { max-height: 148px !important; }
+  .pptx-mode .slide6-large .full-figure-wrap img { max-height: 255px !important; }
+
+  .pptx-mode body, .pptx-mode .presentation-container {
+    width: 960px !important;
+    height: 540px !important;
+  }
+
+  .pptx-mode .slide {
+    padding: 40px 34px 38px !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .pptx-mode .slide-title { font-size: 28px !important; margin-bottom: 18px !important; text-align: center !important; }
+  .pptx-mode .content, .pptx-mode ul.bullets li { font-size: 16px !important; line-height: 1.42 !important; }
+  .pptx-mode .two-col, .pptx-mode .split-layout, .pptx-mode .two-panel { gap: 22px !important; height: calc(100% - 84px) !important; }
+  .pptx-mode .col-card { padding: 16px !important; }
+  .pptx-mode .col-card h3 { font-size: 19px !important; margin-bottom: 10px !important; }
+  .pptx-mode .figure-placeholder { min-height: 235px !important; font-size: 12px !important; padding: 14px !important; }
+  .pptx-mode .figure-placeholder.small { min-height: 130px !important; }
+  .pptx-mode .callout { font-size: 14px !important; padding: 12px 14px !important; }
+  .pptx-mode .metric-callout { font-size: 12px !important; padding: 8px 10px !important; }
+  .pptx-mode .panel-bottom-box { min-height: 62px !important; }
+  .pptx-mode .pipeline-arrow { font-size: 12px !important; gap: 8px !important; margin: 10px 0 !important; }
+  .pptx-mode .pipeline-arrow .arrow { font-size: 18px !important; }
+  .pptx-mode .pipeline-arrow .node { padding: 6px 10px !important; font-size: 11px !important; }
+  .pptx-mode .title-slide { padding-top: 42px !important; }
+  .pptx-mode .title-slide .main-title { font-size: 31px !important; line-height: 1.22 !important; max-width: 780px !important; margin-bottom: 20px !important; }
+  .pptx-mode .title-slide .subtitle { font-size: 17px !important; margin-bottom: 24px !important; line-height: 1.45 !important; }
+  .pptx-mode .title-slide .collab-note { font-size: 11px !important; margin-top: 18px !important; }
+  .pptx-mode .title-slide .accent-line { margin-bottom: 20px !important; }
+  .pptx-mode .logo-placeholder { width: 88px !important; height: 44px !important; bottom: 44px !important; left: 34px !important; font-size: 10px !important; }
+  .pptx-mode .ack-box { bottom: 36px !important; left: 34px !important; right: 34px !important; padding: 12px 14px !important; }
+  .pptx-mode .ack-box p, .pptx-mode .ack-box .ack-title, .pptx-mode .credit { font-size: 11px !important; }
+  .pptx-mode .slide-number { bottom: 12px !important; right: 16px !important; font-size: 12px !important; }
+  .pptx-mode .nav-controls { display: none !important; }
+
+  @media print {
+    body { overflow: visible; }
+    .slide {
+      position: relative;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      page-break-after: always;
+      border: none;
+      height: 100vh;
+    }
+    .nav-controls, .keyboard-hint {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .slide {
+      padding: 32px 24px 40px;
+    }
+    .slide-title {
+      font-size: 22px;
+    }
+    .content, ul.bullets li {
+      font-size: 23px;
+    }
+    .two-col, .split-layout, .two-panel {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+
+
+.slide9-two-images {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: calc(100% - 110px);
+}
+
+.slide9-two-images .top-horizontal,
+.slide9-two-images .bottom-square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.slide9-two-images .top-horizontal img {
+  width: 88%;
+  max-height: 52%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+.slide9-two-images .bottom-square img {
+  width: min(44%, 360px);
+  max-height: 34%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+.pptx-mode .slide9-two-images {
+  gap: 10px !important;
+  height: calc(100% - 84px) !important;
+}
+
+.pptx-mode .slide9-two-images .top-horizontal img {
+  width: 84% !important;
+  max-height: 50% !important;
+}
+
+.pptx-mode .slide9-two-images .bottom-square img {
+  width: min(40%, 220px) !important;
+  max-height: 28% !important;
+}
+
+
+.centered-figure-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100% - 110px);
+}
+.centered-figure-slide .figure-image-wrap {
+  width: 88%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.centered-figure-slide .figure-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+.pptx-mode .centered-figure-slide {
+  height: calc(100% - 84px) !important;
+}
+.pptx-mode .centered-figure-slide .figure-image-wrap {
+  width: 84% !important;
+}
+
+/* Slide 5: hero architecture, centered, enlarged */
+.slide[data-slide="5"] .centered-figure-slide {
+  height: calc(100% - 40px);
+}
+.slide[data-slide="5"] .figure-image-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.slide[data-slide="5"] .figure-image {
+  max-width: 115%;
+  max-height: 99vh;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+.slide[data-slide="5"] .credit-inline {
+  text-align: center;
+  font-size: 20px;
+  width: 100%;
+}
+.pptx-mode .slide[data-slide="5"] .credit-inline {
+  font-size: 14px !important;
+}
+
+
+.hero-figure .credit-inline,
+.hero-figure .credit,
+.slide3-large .right-figure .credit-inline,
+.slide3-large .right-figure .credit {
+  width: 100%;
+  display: block;
+  text-align: right;
+  margin-top: 8px;
+  padding-right: 4px;
+}
+
+.hero-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.slide3-large .right-figure,
+.slide3-large .full-figure-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+
+.hero-figure .figure-frame,
+.slide3-large .right-figure .figure-frame {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-figure .figure-frame img,
+.slide3-large .right-figure .figure-frame img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.hero-figure .figure-frame .credit-inline,
+.slide3-large .right-figure .figure-frame .credit-inline {
+  width: auto;
+  max-width: 100%;
+  text-align: right;
+  margin-top: 8px;
+  padding-right: 0;
+  align-self: flex-end;
+}
+
+.hero-figure,
+.slide3-large .right-figure,
+.slide3-large .full-figure-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.slide[data-slide="9"] .slide-title {
+  margin-bottom: 34px !important;
+}
+
+.slide[data-slide="9"] .slide5-two-col {
+  margin-top: 8px;
+}
+
+.slide[data-slide="9"] .slide5-left {
+  padding-top: 10px;
+}
+
+.slide[data-slide="9"] .slide5-text {
+  margin-top: 8px;
+  padding-right: 8px;
+}
+
+.slide[data-slide="9"] .slide5-arch {
+  padding-top: 10px;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide-title {
+  margin-bottom: 24px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-left,
+.pptx-mode .slide[data-slide="9"] .slide5-arch {
+  padding-top: 6px !important;
+}
+
+
+.slide[data-slide="9"] .slide5-left {
+  padding-top: 22px !important;
+}
+
+.slide[data-slide="9"] .slide5-text {
+  margin-top: 14px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch {
+  padding-top: 18px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-left {
+  padding-top: 12px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-text {
+  margin-top: 8px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-arch {
+  padding-top: 10px !important;
+}
+
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.presentation-container {
+  width: 1920px !important;
+  height: 1080px !important;
+  position: absolute !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(var(--deck-scale, 1));
+  transform-origin: center center;
+}
+
+.slide {
+  width: 100%;
+  height: 100%;
+}
+
+.slide[data-slide="999"] .slide2-hero {
+  height: calc(100% - 120px);
+  gap: 18px;
+}
+
+.slide[data-slide="999"] .hero-figure {
+  flex: 0 0 68%;
+  min-height: 0;
+}
+
+.slide[data-slide="999"] .hero-text {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.slide[data-slide="999"] .hero-text .content,
+.slide[data-slide="999"] .hero-text ul.bullets li {
+  font-size: 20px;
+  line-height: 1.42;
+}
+
+.slide[data-slide="999"] .hero-text ul.bullets li {
+  margin-bottom: 6px;
+}
+
+.slide[data-slide="999"] .hero-figure .figure-frame,
+.slide[data-slide="999"] .hero-figure img {
+  max-height: 100%;
+}
+
+@media (max-width: 768px) {
+  .presentation-container {
+    width: 1920px !important;
+    height: 1080px !important;
+  }
+
+  .slide {
+    padding: 66px 56px 60px !important;
+  }
+
+  .slide-title {
+    font-size: 31px !important;
+  }
+
+  .content, ul.bullets li {
+    font-size: inherit !important;
+  }
+
+  .two-col, .split-layout, .two-panel {
+    flex-direction: row !important;
+    gap: inherit !important;
+  }
+}
+
+
+body {
+  background-size: cover;
+}
+
+.slide {
+  padding: 54px 46px 48px !important;
+}
+
+.slide-title {
+  font-size: 36px !important;
+  margin-top: 0 !important;
+  margin-bottom: 22px !important;
+  line-height: 1.18 !important;
+}
+
+.content,
+ul.bullets li {
+  font-size: 25px !important;
+  line-height: 1.48 !important;
+}
+
+ul.bullets li {
+  margin-bottom: 10px !important;
+}
+
+.credit-inline,
+.credit,
+.results-note,
+.metric-callout,
+.comparison-note {
+  font-size: 15px !important;
+}
+
+.two-col,
+.split-layout,
+.two-panel {
+  gap: 28px !important;
+}
+
+.slide2-hero {
+  gap: 12px !important;
+  height: calc(100% - 112px) !important;
+}
+
+.slide[data-slide="999"] .hero-figure {
+  flex: 0 0 73% !important;
+}
+
+.slide[data-slide="999"] .hero-text .content,
+.slide[data-slide="999"] .hero-text ul.bullets li {
+  font-size: 23px !important;
+  line-height: 1.38 !important;
+}
+
+.slide[data-slide="999"] .hero-text ul.bullets li {
+  margin-bottom: 4px !important;
+}
+
+.slide3-large .right-figure {
+  flex: 1.38 !important;
+}
+
+.slide3-large .left-content {
+  flex: 0.62 !important;
+}
+
+.slide3-large .full-figure-wrap img {
+  max-height: 610px !important;
+}
+
+.comparison-wrap {
+  height: calc(100% - 118px) !important;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 16px 18px !important;
+  font-size: 19px !important;
+  line-height: 1.42 !important;
+}
+
+.slide5-two-col {
+  height: calc(100% - 82px) !important;
+  column-gap: 20px !important;
+}
+
+.slide5-text .content,
+.slide5-text ul.bullets li {
+  font-size: 23px !important;
+  line-height: 1.42 !important;
+}
+
+.slide5-desi .figure-image {
+  max-height: 100% !important;
+}
+
+.slide5-arch .figure-image {
+  max-height: 300px !important;
+}
+
+.slide6-large .right-figure {
+  flex: 1.28 !important;
+}
+
+.slide6-large .left-content {
+  flex: 0.72 !important;
+}
+
+.slide6-large .full-figure-wrap img {
+  max-height: 560px !important;
+}
+
+.slide8-centered {
+  height: calc(100% - 92px) !important;
+}
+
+.slide8-centered .figure-image-wrap {
+  width: 92% !important;
+}
+
+.centered-figure-slide {
+  height: calc(100% - 92px) !important;
+}
+
+.centered-figure-slide .figure-image-wrap {
+  width: 92% !important;
+}
+
+.slide9-flow .left-content {
+  flex: 0.84 !important;
+}
+
+.slide9-flow .right-figure {
+  flex: 1.16 !important;
+}
+
+.slide12-centered .content {
+  height: calc(100% - 96px) !important;
+}
+
+.slide-number {
+  font-size: 21px !important;
+  bottom: 14px !important;
+  right: 18px !important;
+}
+
+
+.content,
+ul.bullets li {
+  font-size: 27px !important;
+}
+
+.slide[data-slide="999"] .slide-title {
+  margin-bottom: 28px !important;
+}
+
+.slide[data-slide="999"] .slide2-hero {
+  gap: 18px !important;
+  height: calc(100% - 102px) !important;
+}
+
+.slide[data-slide="999"] .hero-figure {
+  flex: 0 0 70% !important;
+}
+
+.slide[data-slide="999"] .hero-text .content,
+.slide[data-slide="999"] .hero-text ul.bullets li {
+  font-size: 25px !important;
+  line-height: 1.40 !important;
+}
+
+.slide[data-slide="999"] .split-layout {
+  gap: 22px !important;
+}
+
+.slide[data-slide="999"] .left-content {
+  flex: 0.72 !important;
+  padding-right: 2px !important;
+}
+
+.slide[data-slide="999"] .right-figure {
+  flex: 1.28 !important;
+}
+
+.slide[data-slide="999"] .content,
+.slide[data-slide="999"] ul.bullets li {
+  font-size: 25px !important;
+  line-height: 1.42 !important;
+}
+
+.slide[data-slide="999"] .full-figure-wrap img {
+  max-height: 660px !important;
+}
+
+.slide[data-slide="5"] .comparison-wrap {
+  height: calc(100% - 108px) !important;
+}
+
+.slide[data-slide="5"] .comparison-table th,
+.slide[data-slide="5"] .comparison-table td {
+  font-size: 21px !important;
+  padding: 18px 20px !important;
+  line-height: 1.46 !important;
+}
+
+.slide[data-slide="5"] .comparison-note,
+.slide[data-slide="5"] .content,
+.slide[data-slide="5"] ul.bullets li {
+  font-size: 22px !important;
+}
+
+.slide[data-slide="9"] .slide-title {
+  margin-bottom: 30px !important;
+}
+
+.slide[data-slide="9"] .slide5-two-col {
+  height: calc(100% - 72px) !important;
+  column-gap: 18px !important;
+  margin-top: 10px !important;
+}
+
+.slide[data-slide="9"] .slide5-left {
+  padding-top: 28px !important;
+}
+
+.slide[data-slide="9"] .slide5-text {
+  margin-top: 16px !important;
+  padding-right: 6px !important;
+}
+
+.slide[data-slide="9"] .slide5-text .content,
+.slide[data-slide="9"] .slide5-text ul.bullets li {
+  font-size: 25px !important;
+  line-height: 1.40 !important;
+}
+
+.slide[data-slide="9"] .slide5-arch {
+  padding-top: 26px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .figure-image-wrap {
+  width: 84% !important;
+  max-width: 84% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .figure-image {
+  width: 100% !important;
+  max-height: 355px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .credit-inline,
+.slide[data-slide="9"] .slide5-desi .credit-inline {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: block !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+  text-align: right !important;
+  box-sizing: border-box !important;
+}
+
+
+.slide-title {
+  font-size: 40px !important;
+}
+
+.content,
+ul.bullets li {
+  font-size: 31px !important;
+}
+
+.credit-inline,
+.credit,
+.results-note,
+.metric-callout,
+.comparison-note {
+  font-size: 19px !important;
+}
+
+.comparison-table th,
+.comparison-table td {
+  font-size: 25px !important;
+}
+
+.slide[data-slide="999"] .hero-text .content,
+.slide[data-slide="999"] .hero-text ul.bullets li,
+.slide[data-slide="999"] .content,
+.slide[data-slide="999"] ul.bullets li,
+.slide[data-slide="5"] .comparison-note,
+.slide[data-slide="5"] .content,
+.slide[data-slide="5"] ul.bullets li,
+.slide[data-slide="9"] .slide5-text .content,
+.slide[data-slide="9"] .slide5-text ul.bullets li {
+  font-size: 29px !important;
+}
+
+.slide-number {
+  font-size: 25px !important;
+}
+
+
+.slide[data-slide="5"] .comparison-table th,
+.slide[data-slide="5"] .comparison-table td {
+  font-size: 29px !important;
+}
+
+.slide[data-slide="9"] .slide5-two-col {
+  grid-template-columns: 1.02fr 0.98fr !important;
+  column-gap: 22px !important;
+  align-items: center !important;
+}
+
+.slide[data-slide="9"] .slide5-left {
+  justify-content: center !important;
+  padding-top: 36px !important;
+}
+
+.slide[data-slide="9"] .slide5-text {
+  margin-top: 24px !important;
+  padding-left: 18px !important;
+  padding-right: 10px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch {
+  padding-top: 34px !important;
+  align-items: center !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .figure-image-wrap {
+  width: 92% !important;
+  max-width: 92% !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .figure-image {
+  max-height: 430px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-arch .figure-image {
+  max-height: 220px !important;
+}
+
+
+/* Reduce oversized right plot on SpecPT slide */
+.slide[data-slide="9"] .slide5-desi {
+  align-items: center !important;
+  justify-content: center !important;
+  padding-top: 12px !important;
+}
+
+.slide[data-slide="9"] .slide5-desi .figure-image-wrap {
+  width: 82% !important;
+  max-width: 82% !important;
+  height: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.slide[data-slide="9"] .slide5-desi .figure-image {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  max-height: 760px !important;
+  object-fit: contain !important;
+}
+
+.slide[data-slide="9"] .slide5-desi .credit-inline {
+  width: 100% !important;
+  max-width: 100% !important;
+  text-align: right !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-desi .figure-image-wrap {
+  width: 76% !important;
+  max-width: 76% !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-desi .figure-image {
+  max-height: 245px !important;
+}
+
+
+/* Slide 5: move left text slightly up, enlarge architecture plot */
+.slide[data-slide="9"] .slide5-left {
+  padding-top: 18px !important;
+}
+
+.slide[data-slide="9"] .slide5-text {
+  margin-top: 6px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch {
+  padding-top: 12px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .figure-image-wrap {
+  width: 92% !important;
+  max-width: 92% !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .figure-image {
+  width: 100% !important;
+  max-height: 410px !important;
+  object-fit: contain !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-left {
+  padding-top: 8px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-text {
+  margin-top: 2px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-arch {
+  padding-top: 6px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-arch .figure-image {
+  max-height: 245px !important;
+}
+
+
+/* Slide 1 */
+.slide[data-slide="1"] .main-title {
+  font-size: 44px !important;
+}
+.slide[data-slide="1"] .subtitle {
+  font-size: 25px !important;
+}
+
+/* Slide 3 */
+.slide[data-slide="999"] .split-layout {
+  gap: 14px !important;
+}
+.slide[data-slide="999"] .left-content {
+  flex: 0.78 !important;
+  padding-right: 0 !important;
+}
+.slide[data-slide="999"] .right-figure {
+  flex: 1.22 !important;
+}
+.slide[data-slide="999"] .full-figure-wrap img {
+  max-height: 710px !important;
+}
+
+/* Slide 4 */
+.slide[data-slide="5"] .comparison-table {
+  width: min(1280px, 100%) !important;
+}
+.slide[data-slide="5"] .comparison-wrap > div {
+  width: min(1320px, 100%) !important;
+}
+
+/* Slide 5 */
+.slide[data-slide="9"] .slide5-desi .figure-image-wrap {
+  width: 80% !important;
+  max-width: 80% !important;
+}
+.slide[data-slide="9"] .slide5-desi .credit-inline {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 6px 0 0 0 !important;
+  padding: 0 !important;
+  text-align: right !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  box-sizing: border-box !important;
+}
+
+/* Slide 6 */
+.slide[data-slide="9"] .right-figure .full-figure-wrap {
+  width: fit-content !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.slide[data-slide="9"] .right-figure .credit-inline {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 6px !important;
+  padding: 0 !important;
+  text-align: right !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  box-sizing: border-box !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .main-title {
+  font-size: 35px !important;
+}
+.pptx-mode .slide[data-slide="1"] .subtitle {
+  font-size: 19px !important;
+}
+.pptx-mode .slide[data-slide="999"] .split-layout {
+  gap: 12px !important;
+}
+.pptx-mode .slide[data-slide="999"] .full-figure-wrap img {
+  max-height: 290px !important;
+}
+.pptx-mode .slide[data-slide="5"] .comparison-table {
+  width: min(860px, 100%) !important;
+}
+.pptx-mode .slide[data-slide="9"] .slide5-desi .figure-image-wrap {
+  width: 72% !important;
+  max-width: 72% !important;
+}
+
+
+/* Title slide: expand title horizontally */
+.slide[data-slide="1"] .main-title {
+  max-width: 1220px !important;
+  width: 1220px !important;
+  letter-spacing: 0.2px !important;
+  line-height: 1.22 !important;
+}
+
+/* Slide 5 DESI plot credit containment */
+.slide[data-slide="9"] .slide5-desi {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
+}
+
+.slide[data-slide="9"] .slide5-desi .figure-image-wrap {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  width: 88% !important;
+  max-width: 88% !important;
+  height: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  gap: 4px !important;
+}
+
+.slide[data-slide="9"] .slide5-desi .figure-image {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  max-height: 820px !important;
+  object-fit: contain !important;
+}
+
+.slide[data-slide="9"] .slide5-desi .credit-inline {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 2px 0 0 0 !important;
+  padding: 0 !important;
+  text-align: center !important;
+  align-self: center !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  line-height: 1.25 !important;
+  box-sizing: border-box !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .main-title {
+  max-width: 820px !important;
+  width: 820px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-desi .figure-image-wrap {
+  width: 82% !important;
+  max-width: 82% !important;
+}
+
+
+/* Slide 4: make bottom text block match wider table */
+.slide[data-slide="5"] .comparison-wrap > div > div[style*="width:min(980px,100%)"] {
+  width: min(1280px, 100%) !important;
+}
+
+/* Slide 5: enlarge architecture plot and tighten gap with DESI plot */
+.slide[data-slide="9"] .slide5-two-col {
+  grid-template-columns: 1.08fr 0.92fr !important;
+  column-gap: 14px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch {
+  padding-top: 8px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .figure-image-wrap {
+  width: 98% !important;
+  max-width: 98% !important;
+  gap: 2px !important;
+}
+
+.slide[data-slide="9"] .slide5-arch .figure-image {
+  max-height: 455px !important;
+  width: 100% !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-two-col {
+  grid-template-columns: 1.06fr 0.94fr !important;
+  column-gap: 12px !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-arch .figure-image-wrap {
+  width: 96% !important;
+  max-width: 96% !important;
+}
+
+.pptx-mode .slide[data-slide="9"] .slide5-arch .figure-image {
+  max-height: 270px !important;
+}
+
+
+.slide[data-slide="19"] .summary-block {
+  width: min(1280px, 100%);
+  margin: 0 auto;
+}
+
+.slide[data-slide="19"] .summary-main {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.slide[data-slide="19"] .summary-main > li {
+  position: relative;
+  padding-left: 26px;
+  margin-bottom: 22px;
+  font-size: 29px;
+  line-height: 1.38;
+  color: var(--text-secondary);
+}
+
+.slide[data-slide="19"] .summary-main > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 13px;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.slide[data-slide="19"] .summary-sub {
+  list-style: none;
+  margin: 10px 0 0 6px;
+  padding: 0;
+}
+
+.slide[data-slide="19"] .summary-sub li {
+  margin-bottom: 6px;
+  font-size: 25px;
+  line-height: 1.34;
+  color: var(--text-muted);
+}
+
+.pptx-mode .slide[data-slide="19"] .summary-main > li {
+  font-size: 18px !important;
+  margin-bottom: 14px !important;
+}
+
+.pptx-mode .slide[data-slide="19"] .summary-sub li {
+  font-size: 15px !important;
+}
+
+
+.backup-figure-slide {
+  height: calc(100% - 92px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backup-figure-slide .figure-image-wrap {
+  width: 92%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backup-figure-slide .figure-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.backup-math-slide {
+  height: calc(100% - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backup-math-inner {
+  width: min(1460px, 100%);
+  margin: 0 auto;
+  color: var(--text-secondary);
+}
+
+.backup-math-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 34px;
+  align-items: stretch;
+}
+
+.backup-math-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-radius: 28px;
+  padding: 26px 30px;
+}
+
+.backup-math-card h3 {
+  font-size: 32px;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: 22px;
+  font-weight: 500;
+}
+
+.backup-math-card p {
+  font-size: 24px;
+  line-height: 1.42;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.backup-math-card .eq-block {
+  font-size: 30px;
+  color: var(--text-primary);
+  margin: 18px 0 24px;
+}
+
+.backup-math-card .eq-small {
+  font-size: 28px;
+}
+
+.backup-z-slide {
+  height: calc(100% - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backup-z-inner {
+  width: min(1480px, 100%);
+  margin: 0 auto;
+  color: var(--text-secondary);
+}
+
+.backup-z-inner p {
+  font-size: 24px;
+  line-height: 1.42;
+  margin-bottom: 12px;
+}
+
+.backup-z-inner .eq-block {
+  font-size: 28px;
+  color: var(--text-primary);
+  margin: 10px 0 18px;
+}
+
+.pptx-mode .backup-math-card h3 { font-size: 21px !important; }
+.pptx-mode .backup-math-card p,
+.pptx-mode .backup-z-inner p { font-size: 16px !important; }
+.pptx-mode .backup-math-card .eq-block,
+.pptx-mode .backup-math-card .eq-small,
+.pptx-mode .backup-z-inner .eq-block { font-size: 18px !important; }
+
+
+.backup-math-card .eq-block mjx-container,
+.backup-z-inner .eq-block mjx-container {
+  color: var(--text-primary) !important;
+}
+
+.backup-math-card .eq-block mjx-container[display="true"],
+.backup-z-inner .eq-block mjx-container[display="true"] {
+  margin: 0.25em 0 !important;
+}
+
+.backup-math-figure-slide, .backup-z-figure-slide {
+  height: calc(100% - 96px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.backup-math-figure-grid {
+  width:min(1480px,100%);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:34px;
+}
+.backup-math-figure-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-radius: 28px;
+  padding: 22px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+}
+.backup-math-figure-card h3 {
+  font-size:32px;
+  color:var(--text-primary);
+  margin-bottom:14px;
+  font-weight:600;
+}
+.backup-math-figure-card img,
+.backup-z-figure-slide img {
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  display:block;
+}
+.backup-z-figure-slide .figure-image-wrap {
+  width:min(1500px,100%);
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.pptx-mode .backup-math-figure-card h3 { font-size:20px !important; }
+
+.backup-z-figure-slide .figure-image-wrap { width:min(1540px,100%); }
+.backup-z-figure-slide img { max-height:100%; }
+
+.backup-katex-slide {
+  height: calc(100% - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.backup-katex-grid {
+  width: min(1480px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+.backup-katex-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-radius: 28px;
+  padding: 28px 30px;
+  color: var(--text-secondary);
+}
+.backup-katex-card h3 {
+  margin: 0 0 20px 0;
+  text-align: center;
+  font-size: 34px;
+  line-height: 1.2;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.backup-katex-card p, .backup-katex-column p {
+  margin: 0 0 14px 0;
+  font-size: 24px;
+  line-height: 1.38;
+  color: var(--text-secondary);
+}
+.backup-katex-eq {
+  margin: 12px 0 22px 0;
+  color: var(--text-primary);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.backup-katex-eq .katex-display {
+  margin: 0.2em 0 !important;
+}
+.backup-katex-eq .katex {
+  font-size: 1.28em;
+}
+.backup-katex-z {
+  width: min(1500px, 100%);
+}
+.backup-katex-column {
+  color: var(--text-secondary);
+}
+.backup-katex-column .section-gap {
+  height: 8px;
+}
+.pptx-mode .backup-katex-card h3 { font-size: 22px !important; }
+.pptx-mode .backup-katex-card p, .pptx-mode .backup-katex-column p { font-size: 16px !important; }
+.pptx-mode .backup-katex-eq .katex { font-size: 0.9em !important; }
+
+
+/* Backup figure slides larger */
+.slide[data-slide="23"] .backup-figure-slide .figure-image-wrap,
+.slide[data-slide="22"] .backup-figure-slide .figure-image-wrap {
+  width: 98% !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide .figure-image,
+.slide[data-slide="22"] .backup-figure-slide .figure-image {
+  max-width: 98% !important;
+  max-height: 98% !important;
+}
+
+/* Backup equation slides larger */
+.slide[data-slide="23"] .backup-katex-grid {
+  width: min(1560px, 100%) !important;
+  gap: 24px !important;
+}
+
+.slide[data-slide="23"] .backup-katex-card {
+  padding: 24px 24px !important;
+}
+
+.slide[data-slide="23"] .backup-katex-card h3 {
+  font-size: 38px !important;
+}
+
+.slide[data-slide="23"] .backup-katex-card p,
+.slide[data-slide="9"] .backup-katex-column p {
+  font-size: 27px !important;
+  line-height: 1.34 !important;
+}
+
+.slide[data-slide="23"] .backup-katex-eq .katex,
+.slide[data-slide="9"] .backup-katex-eq .katex {
+  font-size: 1.62em !important;
+}
+
+.slide[data-slide="9"] .backup-katex-z {
+  width: min(1600px, 100%) !important;
+}
+
+.slide[data-slide="9"] .backup-katex-eq {
+  margin: 10px 0 18px 0 !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-figure-slide .figure-image-wrap,
+.pptx-mode .slide[data-slide="22"] .backup-figure-slide .figure-image-wrap {
+  width: 94% !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-katex-card h3 {
+  font-size: 24px !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-katex-card p,
+.pptx-mode .slide[data-slide="9"] .backup-katex-column p {
+  font-size: 18px !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-katex-eq .katex,
+.pptx-mode .slide[data-slide="9"] .backup-katex-eq .katex {
+  font-size: 1.08em !important;
+}
+
+
+/* Make backup figure slides use nearly full canvas */
+.slide[data-slide="23"],
+.slide[data-slide="22"] {
+  padding: 22px 18px 18px !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide,
+.slide[data-slide="22"] .backup-figure-slide {
+  height: calc(100% - 26px) !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide .figure-image-wrap,
+.slide[data-slide="22"] .backup-figure-slide .figure-image-wrap {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide .figure-image,
+.slide[data-slide="22"] .backup-figure-slide .figure-image {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
+.pptx-mode .slide[data-slide="23"],
+.pptx-mode .slide[data-slide="22"] {
+  padding: 16px 14px 14px !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-figure-slide,
+.pptx-mode .slide[data-slide="22"] .backup-figure-slide {
+  height: calc(100% - 18px) !important;
+}
+
+
+/* Enlarge appendix figures aggressively */
+.slide[data-slide="23"] .backup-figure-slide,
+.slide[data-slide="22"] .backup-figure-slide {
+  overflow: hidden !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide .figure-image-wrap,
+.slide[data-slide="22"] .backup-figure-slide .figure-image-wrap {
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide .figure-image,
+.slide[data-slide="22"] .backup-figure-slide .figure-image {
+  max-width: none !important;
+  max-height: none !important;
+  width: 200% !important;
+  height: auto !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-figure-slide .figure-image,
+.pptx-mode .slide[data-slide="22"] .backup-figure-slide .figure-image {
+  width: 185% !important;
+}
+
+
+/* Reduce appendix figures from 2x to 1.5x */
+.slide[data-slide="23"] .backup-figure-slide .figure-image,
+.slide[data-slide="22"] .backup-figure-slide .figure-image {
+  width: 150% !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-figure-slide .figure-image,
+.pptx-mode .slide[data-slide="22"] .backup-figure-slide .figure-image {
+  width: 145% !important;
+}
+
+
+/* Set appendix figures back to 1x */
+.slide[data-slide="23"] .backup-figure-slide .figure-image,
+.slide[data-slide="22"] .backup-figure-slide .figure-image {
+  width: 100% !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-figure-slide .figure-image,
+.pptx-mode .slide[data-slide="22"] .backup-figure-slide .figure-image {
+  width: 100% !important;
+}
+
+
+/* Reduce only the distribution plot on slide 17 */
+.slide[data-slide="22"] .backup-figure-slide .figure-image {
+  width: 86% !important;
+  max-width: 86% !important;
+  height: auto !important;
+  max-height: 92% !important;
+}
+
+.pptx-mode .slide[data-slide="22"] .backup-figure-slide .figure-image {
+  width: 84% !important;
+  max-width: 84% !important;
+}
+
+
+/* Title slide corner logos */
+.slide[data-slide="1"] .title-slide {
+  position: relative !important;
+}
+
+.slide[data-slide="1"] .logo-placeholder {
+  position: absolute !important;
+  top: 24px !important;
+  right: 34px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 240px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  z-index: 3 !important;
+}
+
+.slide[data-slide="1"] .logo-placeholder img {
+  max-width: 100% !important;
+  max-height: 90px !important;
+  object-fit: contain !important;
+}
+
+.slide[data-slide="1"] .ast-logo-corner {
+  position: absolute;
+  top: 24px;
+  left: 34px;
+  width: 240px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 3;
+}
+
+.slide[data-slide="1"] .ast-logo-corner img {
+  max-width: 100%;
+  max-height: 90px;
+  object-fit: contain;
+}
+
+/* Summary slide QR layout */
+.slide[data-slide="19"] .summary-content-wrap {
+  width: min(1500px, 100%);
+  height: calc(100% - 12px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 30px;
+  align-items: center;
+}
+
+.slide[data-slide="19"] .summary-block {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.slide[data-slide="19"] .summary-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: -24px;
+  gap: 8px;
+}
+.slide[data-slide="19"] .qr-caption {
+  font-size: 26px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.slide[data-slide="19"] .summary-qr img {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.96);
+  padding: 10px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.28);
+}
+
+.pptx-mode .slide[data-slide="1"] .logo-placeholder,
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner {
+  top: 16px !important;
+  width: 150px !important;
+  height: 54px !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .logo-placeholder { right: 20px !important; }
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner { left: 20px !important; }
+.pptx-mode .slide[data-slide="1"] .logo-placeholder img,
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner img {
+  max-height: 54px !important;
+}
+
+.pptx-mode .slide[data-slide="19"] .summary-content-wrap {
+  grid-template-columns: minmax(0, 1fr) 190px !important;
+  gap: 18px !important;
+}
+
+.pptx-mode .slide[data-slide="19"] .summary-qr img {
+  max-width: 180px !important;
+  padding: 6px !important;
+}
+
+.pptx-mode .slide[data-slide="19"] .qr-caption {
+  font-size: 16px !important;
+}
+
+
+/* Larger AST logo */
+.slide[data-slide="1"] .ast-logo-corner {
+  width: 300px !important;
+  height: 108px !important;
+}
+
+.slide[data-slide="1"] .ast-logo-corner img {
+  max-height: 108px !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner {
+  width: 180px !important;
+  height: 68px !important;
+}
+
+.pptx-mode .slide[data-slide="1"] .ast-logo-corner img {
+  max-height: 68px !important;
+}
+
+/* Questions slide */
+.questions-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.questions-slide .questions-text {
+  font-size: 72px;
+  line-height: 1.15;
+  color: var(--text-primary);
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.pptx-mode .questions-slide .questions-text {
+  font-size: 42px !important;
+}
+
+
+/* Enlarge the second appendix figure (distribution plot) after Questions slide insertion */
+.slide[data-slide="23"] {
+  padding: 16px 12px 12px !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide {
+  height: calc(100% - 14px) !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide .figure-image-wrap {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.slide[data-slide="23"] .backup-figure-slide .figure-image {
+  width: 96% !important;
+  max-width: 96% !important;
+  max-height: 98% !important;
+  height: auto !important;
+}
+
+.pptx-mode .slide[data-slide="23"] {
+  padding: 12px 10px 10px !important;
+}
+
+.pptx-mode .slide[data-slide="23"] .backup-figure-slide .figure-image {
+  width: 92% !important;
+  max-width: 92% !important;
+}
+
+/* Slide 9 — enlarge GradCAM figure */
+.slide[data-slide="22"] .centered-figure-slide {
+  height: calc(100% - 80px) !important;
+}
+.slide[data-slide="22"] .centered-figure-slide .figure-image-wrap {
+  width: 98% !important;
+  height: 100% !important;
+}
+.slide[data-slide="22"] .centered-figure-slide .figure-image {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+/* Slide 13: enlarge IG plot */
+.slide[data-slide="13"] .centered-figure-slide {
+  height: calc(100% - 80px) !important;
+}
+.slide[data-slide="13"] .centered-figure-slide .figure-image-wrap {
+  width: 98% !important;
+  height: 100% !important;
+}
+.slide[data-slide="13"] .centered-figure-slide .figure-image {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+.pptx-mode .slide[data-slide="13"] .centered-figure-slide .figure-image-wrap {
+  width: 94% !important;
+}
+
+/* Slide 5: maximize architecture plot to close gap with DESI plot */
+.slide[data-slide="9"] .slide5-left {
+  padding-top: 4px !important;
+  justify-content: flex-start !important;
+}
+.slide[data-slide="9"] .slide5-text {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+.slide[data-slide="9"] .slide5-arch {
+  padding-top: 6px !important;
+  align-items: flex-start !important;
+  flex: 1 1 auto !important;
+}
+.slide[data-slide="9"] .slide5-arch .figure-image-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+}
+.slide[data-slide="9"] .slide5-arch .figure-image {
+  width: 100% !important;
+  max-height: 560px !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+        /* Slide 17 - BGS Autoencoder backup slide */
+        .slide[data-slide="9"] { padding: 22px 18px 18px !important; }
+        .slide[data-slide="9"] .backup-figure-slide { height: calc(100% - 26px) !important; overflow: hidden !important; }
+        .slide[data-slide="9"] .backup-figure-slide .figure-image-wrap { width: 100% !important; height: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; }
+        .slide[data-slide="9"] .backup-figure-slide .figure-image { width: 100% !important; height: auto !important; max-width: 100% !important; max-height: 100% !important; object-fit: contain !important; }
+        
+        </style>
+<link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet"/></head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="presentation-container">
+<div class="slide active" data-slide="1">
+<div class="title-slide">
+<div class="accent-line"></div>
+<div class="main-title">Revolutionizing Extragalactic Spectroscopy: Leveraging Transformer-Based Models for Automated Redshift Prediction</div>
+<div class="accent-line"></div>
+<div class="subtitle">
+<strong>Clive K. Binu</strong> | Rochester Institute of Technology<br/>
+      Advisor: <strong>Dr. Jeyhan Kartaltepe</strong>
+</div>
+</div>
+<div class="logo-placeholder"><img alt="RIT logo" src="figs/RIT_1505C_hor.jpg"/></div>
+<div class="slide-number">1</div>
+<div class="ast-logo-corner"><img alt="AST logo" src="figs/ast_logo.png"/></div></div>
+<div class="slide" data-slide="2">
+<div class="slide-title">The Scale of Modern Survey Data</div>
+<div class="chart-wrap">
+<svg viewBox="0 0 1000 430" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="barHST" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="barJWST" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="barRoman" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="barEuclid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <text x="500" y="32" text-anchor="middle" fill="#06b6d4" font-size="22" font-weight="700">Petabytes (PB)</text>
+
+  <text x="90" y="364" text-anchor="end" fill="#94a3b8" font-size="16">0</text>
+  <line x1="100" y1="360" x2="920" y2="360" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="90" y="329" text-anchor="end" fill="#94a3b8" font-size="16">5</text>
+  <line x1="100" y1="325" x2="920" y2="325" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="90" y="294" text-anchor="end" fill="#94a3b8" font-size="16">10</text>
+  <line x1="100" y1="290" x2="920" y2="290" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="90" y="259" text-anchor="end" fill="#94a3b8" font-size="16">15</text>
+  <line x1="100" y1="255" x2="920" y2="255" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="90" y="224" text-anchor="end" fill="#94a3b8" font-size="16">20</text>
+  <line x1="100" y1="220" x2="920" y2="220" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="90" y="189" text-anchor="end" fill="#94a3b8" font-size="16">25</text>
+  <line x1="100" y1="185" x2="920" y2="185" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="90" y="154" text-anchor="end" fill="#94a3b8" font-size="16">30</text>
+  <line x1="100" y1="150" x2="920" y2="150" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="90" y="119" text-anchor="end" fill="#94a3b8" font-size="16">35</text>
+  <line x1="100" y1="115" x2="920" y2="115" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="90" y="84" text-anchor="end" fill="#94a3b8" font-size="16">40</text>
+  <line x1="100" y1="80" x2="920" y2="80" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+  <rect x="155" y="358" width="90" height="2" rx="1" fill="url(#barHST)"/>
+  <text x="200" y="350" text-anchor="middle" fill="#06b6d4" font-size="17" font-weight="700">~0.18 PB</text>
+  <text x="200" y="322" text-anchor="middle" fill="#94a3b8" font-size="14">MAST archive</text>
+  <text x="200" y="398" text-anchor="middle" fill="#94a3b8" font-size="20">HST</text>
+
+  <rect x="355" y="356" width="90" height="4" rx="1" fill="url(#barJWST)"/>
+  <text x="400" y="348" text-anchor="middle" fill="#6366f1" font-size="17" font-weight="700">~0.55 PB</text>
+  <text x="400" y="320" text-anchor="middle" fill="#94a3b8" font-size="14">as of 2025</text>
+  <text x="400" y="398" text-anchor="middle" fill="#94a3b8" font-size="20">JWST</text>
+
+  <rect x="555" y="220" width="90" height="140" rx="4" fill="url(#barRoman)"/>
+  <text x="600" y="212" text-anchor="middle" fill="#ef4444" font-size="17" font-weight="700">~20 PB</text>
+  <text x="600" y="184" text-anchor="middle" fill="#94a3b8" font-size="14">Projected</text>
+  <text x="600" y="398" text-anchor="middle" fill="#94a3b8" font-size="20">Roman</text>
+
+  <rect x="755" y="150" width="90" height="210" rx="4" fill="url(#barEuclid)"/>
+  <text x="800" y="142" text-anchor="middle" fill="#f59e0b" font-size="17" font-weight="700">~30 PB</text>
+  <text x="800" y="114" text-anchor="middle" fill="#94a3b8" font-size="14">Projected</text>
+  <text x="800" y="398" text-anchor="middle" fill="#94a3b8" font-size="20">Euclid</text>
+
+</svg>
+</div>
+<div class="slide-number">2</div>
+</div>
+<div class="slide" data-slide="4">
+<div class="slide-title">Traditional Methods Break at Survey Scale</div>
+<div class="comparison-wrap">
+<div style="width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Method</th>
+<th>How it works</th>
+<th>Why it breaks at scale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="method">Visual Inspection</td>
+<td><ul class="table-bullets"><li>Experts manually inspect spectral features</li></ul></td>
+<td><ul class="table-bullets"><li>Slow and labor intensive</li><li>Not realistic for survey-scale samples</li></ul></td>
+</tr>
+<tr>
+<td class="method">Cross-Correlation<br/>(e.g., Redrock)</td>
+<td><ul class="table-bullets"><li>Matches spectra to predefined templates</li></ul></td>
+<td><ul class="table-bullets"><li>Weak on noisy or low-resolution spectra</li><li>Misses unusual cases outside template diversity</li></ul></td>
+</tr>
+</tbody>
+</table>
+<div style="width:min(980px,100%); margin-top:18px;">
+<ul class="bullets" style="margin:0;"><li>With the exponential growth of datasets from facilities such as Roman, Euclid, and JWST, these methods are increasingly impractical for processing millions of spectra efficiently.</li></ul>
+</div>
+</div>
+</div>
+<div class="slide-number">4</div>
+</div>
+<div class="slide" data-slide="5">
+<div class="slide-title">SpecPT: A Foundation Model for Spectra</div>
+<div class="centered-figure-slide">
+<div class="figure-image-wrap">
+<img alt="SpecPT architecture from paper" class="figure-image" src="figs/SpecPT_architecture_paper_2.png"/>
+<div class="credit-inline">Credit: Pattnaik, Kartaltepe &amp; Binu 2025</div>
+</div>
+</div>
+<div class="slide-number">5</div>
+</div>
+<div class="slide anim-arch-slide" data-slide="6">
+<div class="slide-title">SpecPT: A Foundation Model for Spectra</div>
+<div class="anim-arch-wrap">
+<svg viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%;">
+  <defs>
+    <filter id="glow23"><feGaussianBlur stdDeviation="5"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="arrow23" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/></marker>
+    <clipPath id="p1-clip23"><rect x="5" y="58" width="150" height="352"/></clipPath>
+  </defs>
+
+  <!-- Group background boxes -->
+  <rect x="2" y="46" width="656" height="376" rx="14" fill="rgba(30,58,138,0.12)" stroke="rgba(30,58,138,0.35)" stroke-width="1.5"/>
+  <text x="330" y="44" text-anchor="middle" fill="#06b6d4" font-size="20" font-weight="700">Encoder</text>
+  <g class="arch-s0">
+    <rect x="660" y="46" width="438" height="376" rx="14" fill="rgba(16,185,129,0.06)" stroke="rgba(16,185,129,0.35)" stroke-width="1.5"/>
+    <text x="879" y="44" text-anchor="middle" fill="#10b981" font-size="20" font-weight="700">Decoder</text>
+  </g>
+
+  <!-- Panel backgrounds -->
+  <rect x="5" y="58" width="150" height="352" rx="8" fill="rgba(30,41,59,0.35)" stroke="rgba(75,85,99,0.3)" stroke-width="1"/>
+  <rect x="165" y="58" width="240" height="352" rx="8" fill="rgba(30,41,59,0.35)" stroke="rgba(75,85,99,0.3)" stroke-width="1"/>
+  <rect x="415" y="58" width="240" height="352" rx="8" fill="rgba(30,41,59,0.35)" stroke="rgba(75,85,99,0.3)" stroke-width="1"/>
+  <g class="arch-s0">
+    <rect class="p4-bg" x="665" y="58" width="210" height="352" rx="8" fill="rgba(30,41,59,0.35)" stroke="rgba(75,85,99,0.3)" stroke-width="1"/>
+    <rect class="p5-bg" x="885" y="58" width="210" height="352" rx="8" fill="rgba(30,41,59,0.35)" stroke="rgba(75,85,99,0.3)" stroke-width="1"/>
+  </g>
+
+  <!-- Panel labels -->
+  <text x="80" y="78" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">1. Input Spectrum</text>
+  <text x="285" y="78" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">2. Conv1D Feature Extraction</text>
+  <text x="535" y="78" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">3. Transformer Encoder</text>
+  <g class="arch-s0">
+    <text class="p4-label" x="770" y="78" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">4. Transformer Decoder</text>
+    <text class="p5-label" x="990" y="78" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">5. Reconstructed</text>
+  </g>
+
+  <!-- Arrows between panels -->
+  <line x1="157" y1="234" x2="163" y2="234" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow23)"/>
+  <line x1="407" y1="234" x2="413" y2="234" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow23)"/>
+  <g class="arch-s0">
+    <line class="p4-arrow" x1="657" y1="234" x2="663" y2="234" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow23)"/>
+    <line class="p5-arrow" x1="877" y1="234" x2="883" y2="234" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow23)"/>
+  </g>
+
+  <!-- ============================ PANEL 1: Input Spectrum (same as slide 22) ============================ -->
+  <g class="p1" clip-path="url(#p1-clip23)">
+    <path d="M 18 345 L 22 340 C 26 330 28 325 32 310 L 38 295 L 44 310 C 48 325 52 340 56 320 L 60 300 L 64 315 L 68 330 C 72 345 76 340 80 280 L 84 260 L 88 280 L 92 300 L 96 290 L 100 260 L 104 220 L 108 200 L 112 220 L 116 260 L 120 280 L 124 320 L 128 340 C 132 355 136 350 140 330 L 144 310 L 148 320 L 152 340 L 156 350 L 160 340 L 164 320 L 168 300 L 172 310 L 176 340 L 180 350 L 184 345 L 190 340 L 195 345" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p1-spectrum"/>
+    <rect x="82" y="260" width="36" height="90" rx="2" fill="rgba(99,102,241,0.12)" class="p1-em"/>
+  </g>
+
+  <!-- ============================ PANEL 2: Conv1D (same design as slide 22) ============================ -->
+  <g class="p2" transform="translate(-66, 0)">
+    <path d="M 235 165 L 238 163 C 241 159 244 157 250 152 L 256 149 L 262 155 L 268 161 L 274 153 L 280 145 L 286 141 L 292 147 L 298 157 L 304 151 L 310 139 L 316 135 L 322 143 L 328 153 L 334 151 L 340 145 L 346 139 L 352 147 L 358 157 L 364 155 L 370 151 L 376 157 L 382 161 L 388 163 L 394 165 L 400 165 L 406 163 L 412 165 L 418 165 L 424 165 L 430 165 L 436 165 L 442 165 L 448 165 L 454 165 L 460 165 L 466 165" fill="none" stroke="rgba(148,163,184,0.6)" stroke-width="1.5" class="p2-input-spec"/>
+    <text x="350" y="125" text-anchor="middle" fill="#94a3b8" font-size="9">input spectrum</text>
+    <line x1="235" y1="168" x2="466" y2="168" stroke="rgba(148,163,184,0.15)" stroke-width="0.5"/>
+
+    <rect x="237" y="138" width="50" height="32" rx="3" fill="rgba(6,182,212,0.15)" stroke="#06b6d4" stroke-width="1.5" class="p2-kernel k1"/>
+    <rect x="237" y="138" width="30" height="32" rx="3" fill="rgba(99,102,241,0.15)" stroke="#6366f1" stroke-width="1.5" class="p2-kernel k2"/>
+    <rect x="237" y="138" width="20" height="32" rx="3" fill="rgba(251,191,36,0.15)" stroke="#fbbf24" stroke-width="1.5" class="p2-kernel k3"/>
+
+    <text x="350" y="135" text-anchor="middle" fill="#06b6d4" font-size="9" font-weight="600" class="p2-k-label k1-label">k=41 — broad features</text>
+    <text x="350" y="135" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="600" class="p2-k-label k2-label">k=21 — medium features</text>
+    <text x="350" y="135" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="600" class="p2-k-label k3-label">k=11 — fine detail</text>
+
+    <g class="p2-out-row out-1">
+      <text x="232" y="193" fill="#06b6d4" font-size="9" font-weight="600" class="p2-label">k=41</text>
+      <text x="232" y="203" fill="#94a3b8" font-size="8" class="p2-feat-label">broad</text>
+      <text x="232" y="213" fill="#94a3b8" font-size="8" class="p2-feat-label">features</text>
+      <path d="M 300 208 Q 320 200 340 195 Q 360 190 380 193 Q 400 198 420 205 Q 440 200 460 193 L 466 208" fill="none" stroke="#06b6d4" stroke-width="2" class="p2-output p2-o1"/>
+      <line x1="300" y1="210" x2="466" y2="210" stroke="rgba(148,163,184,0.15)" stroke-width="0.5"/>
+    </g>
+
+    <g class="p2-out-row out-2">
+      <text x="232" y="231" fill="#6366f1" font-size="9" font-weight="600" class="p2-label">k=21</text>
+      <text x="232" y="241" fill="#94a3b8" font-size="8" class="p2-feat-label">medium</text>
+      <text x="232" y="251" fill="#94a3b8" font-size="8" class="p2-feat-label">features</text>
+      <path d="M 300 246 L 310 244 L 320 241 L 330 236 L 340 228 L 345 223 L 350 233 L 360 241 L 370 244 L 380 243 L 390 240 L 400 234 L 410 226 L 420 230 L 430 238 L 440 242 L 450 244 L 460 243 L 466 246" fill="none" stroke="#6366f1" stroke-width="2" class="p2-output p2-o2"/>
+      <line x1="300" y1="248" x2="466" y2="248" stroke="rgba(148,163,184,0.15)" stroke-width="0.5"/>
+    </g>
+
+    <g class="p2-out-row out-3">
+      <text x="232" y="269" fill="#fbbf24" font-size="9" font-weight="600" class="p2-label">k=11</text>
+      <text x="232" y="279" fill="#94a3b8" font-size="8" class="p2-feat-label">fine</text>
+      <text x="232" y="289" fill="#94a3b8" font-size="8" class="p2-feat-label">detail</text>
+      <path d="M 300 286 L 305 282 L 310 284 L 315 280 L 320 283 L 325 278 L 330 276 L 335 268 L 340 263 L 345 266 L 350 260 L 355 264 L 360 258 L 365 263 L 370 266 L 375 273 L 380 276 L 385 274 L 390 268 L 395 273 L 400 278 L 405 283 L 410 286 L 415 282 L 420 278 L 425 273 L 430 268 L 435 263 L 440 266 L 445 270 L 450 273 L 455 276 L 460 274 L 466 278" fill="none" stroke="#fbbf24" stroke-width="1.5" class="p2-output p2-o3"/>
+      <line x1="300" y1="288" x2="466" y2="288" stroke="rgba(148,163,184,0.15)" stroke-width="0.5"/>
+    </g>
+
+    <line x1="350" y1="296" x2="350" y2="315" stroke="rgba(148,163,184,0.3)" stroke-width="1" marker-end="url(#arrow23)"/>
+    <text x="360" y="310" text-anchor="start" fill="#94a3b8" font-size="8">MaxPool</text>
+
+    <g class="p2-patches">
+      <rect x="253" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.3)" stroke="rgba(6,182,212,0.5)" stroke-width="0.5"/>
+      <rect x="266" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(6,182,212,0.4)" stroke-width="0.5"/>
+      <rect x="279" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.35)" stroke="rgba(6,182,212,0.5)" stroke-width="0.5"/>
+      <rect x="292" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="0.5"/>
+      <rect x="305" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.3)" stroke="rgba(6,182,212,0.5)" stroke-width="0.5"/>
+      <rect x="318" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.25)" stroke="rgba(6,182,212,0.4)" stroke-width="0.5"/>
+      <rect x="331" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.35)" stroke="rgba(6,182,212,0.5)" stroke-width="0.5"/>
+      <rect x="344" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(6,182,212,0.4)" stroke-width="0.5"/>
+      <rect x="357" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.3)" stroke="rgba(6,182,212,0.5)" stroke-width="0.5"/>
+      <rect x="370" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="0.5"/>
+      <rect x="383" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.35)" stroke="rgba(6,182,212,0.5)" stroke-width="0.5"/>
+      <rect x="396" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(6,182,212,0.4)" stroke-width="0.5"/>
+      <rect x="409" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.3)" stroke="rgba(6,182,212,0.5)" stroke-width="0.5"/>
+      <rect x="422" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.25)" stroke="rgba(6,182,212,0.4)" stroke-width="0.5"/>
+      <rect x="435" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.35)" stroke="rgba(6,182,212,0.5)" stroke-width="0.5"/>
+      <rect x="448" y="322" width="9" height="40" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(6,182,212,0.4)" stroke-width="0.5"/>
+    </g>
+    <text x="350" y="375" text-anchor="middle" fill="#94a3b8" font-size="9">30 patches → tokens</text>
+  </g>
+
+  <!-- ============================ PANEL 3: Transformer Encoder (same as slide 22) ============================ -->
+  <g class="p3" transform="translate(-90, 0)">
+    <text x="625" y="100" text-anchor="middle" fill="#06b6d4" font-size="12" font-weight="600">Compresses the spectrum</text>
+
+    <g class="p3-tokens">
+      <rect x="510" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-1"/>
+      <rect x="525" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-2"/>
+      <rect x="540" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-3"/>
+      <rect x="555" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-4"/>
+      <rect x="570" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-5"/>
+      <rect x="585" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-6"/>
+      <rect x="600" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-7"/>
+      <rect x="615" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-8"/>
+      <rect x="630" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-9"/>
+      <rect x="645" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-10"/>
+      <rect x="660" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-11"/>
+      <rect x="675" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-12"/>
+      <rect x="690" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-13"/>
+      <rect x="705" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-14"/>
+      <rect x="720" y="115" width="13" height="22" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="tk tk-15"/>
+    </g>
+    <text x="625" y="150" text-anchor="middle" fill="#94a3b8" font-size="9">30 spectral patches</text>
+
+    <g class="p3-look">
+      <circle cx="625" cy="195" r="22" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.3)" stroke-width="1.5" class="p3-magnify"/>
+      <circle cx="625" cy="195" r="8" fill="none" stroke="#06b6d4" stroke-width="2" class="p3-magnify-inner"/>
+      <line x1="631" y1="201" x2="640" y2="210" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+    </g>
+
+    <line x1="517" y1="137" x2="608" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+    <line x1="540" y1="137" x2="615" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+    <line x1="565" y1="137" x2="620" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+    <line x1="595" y1="137" x2="625" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+    <line x1="625" y1="137" x2="625" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+    <line x1="655" y1="137" x2="625" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+    <line x1="685" y1="137" x2="625" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+    <line x1="715" y1="137" x2="635" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+    <line x1="735" y1="137" x2="642" y2="180" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p3-look-line"/>
+
+    <text x="625" y="245" text-anchor="middle" fill="#94a3b8" font-size="9" class="p3-imp-label">3 layers × 8 heads (self-attention)</text>
+
+    <rect x="555" y="260" width="13" height="28" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk imp-1"/>
+    <rect x="600" y="260" width="13" height="28" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk imp-2"/>
+    <rect x="645" y="260" width="13" height="28" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk imp-3"/>
+    <rect x="675" y="260" width="13" height="28" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk imp-4"/>
+    <rect x="705" y="260" width="13" height="28" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk imp-5"/>
+
+    <rect x="510" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="525" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="540" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="570" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="585" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="615" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="630" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="660" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="690" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+    <rect x="720" y="260" width="13" height="28" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk"/>
+
+    <line x1="563" y1="288" x2="595" y2="340" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p3-summary-line"/>
+    <line x1="608" y1="288" x2="610" y2="340" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p3-summary-line"/>
+    <line x1="653" y1="288" x2="630" y2="340" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p3-summary-line"/>
+    <line x1="683" y1="288" x2="650" y2="340" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p3-summary-line"/>
+    <line x1="713" y1="288" x2="670" y2="340" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p3-summary-line"/>
+
+    <g class="p3-summary">
+      <circle cx="625" cy="365" r="20" fill="rgba(6,182,212,0.2)" stroke="#06b6d4" stroke-width="2" class="p3-summary-circle"/>
+      <text x="625" y="370" text-anchor="middle" fill="#06b6d4" font-size="20" font-weight="700">Σ</text>
+    </g>
+    <text x="625" y="400" text-anchor="middle" fill="#94a3b8" font-size="9">512-d encoded representation</text>
+  </g>
+
+  <g class="arch-s0">
+
+  <!-- ============================ PANEL 4: Transformer Decoder (inverse of Panel 3) ============================ -->
+  <g class="p4" transform="translate(-97, 0)">
+
+    <!-- Σ summary at TOP (was at bottom in Panel 3) -->
+    <g class="p4-summary">
+      <circle cx="867" cy="148" r="20" fill="rgba(6,182,212,0.2)" stroke="#06b6d4" stroke-width="2" class="p4-sum-circle"/>
+      <text x="867" y="153" text-anchor="middle" fill="#06b6d4" font-size="18" font-weight="700">Σ</text>
+    </g>
+    <text x="867" y="183" text-anchor="middle" fill="#94a3b8" font-size="8" class="p4-sum-label">512-d from encoder</text>
+
+    <!-- 5 lines from Σ going DOWN to important patches (reverse of Panel 3's important→Σ) -->
+    <line x1="855" y1="170" x2="794" y2="228" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p4-from-sum"/>
+    <line x1="858" y1="170" x2="824" y2="228" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p4-from-sum"/>
+    <line x1="867" y1="170" x2="857" y2="228" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p4-from-sum"/>
+    <line x1="876" y1="170" x2="890" y2="228" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p4-from-sum"/>
+    <line x1="879" y1="170" x2="920" y2="228" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" class="p4-from-sum"/>
+
+    <!-- 5 important + 10 faded patches (same style as Panel 3, now receiving from Σ) -->
+    <rect x="788" y="228" width="12" height="26" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk2 imp-1"/>
+    <rect x="818" y="228" width="12" height="26" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk2 imp-2"/>
+    <rect x="851" y="228" width="12" height="26" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk2 imp-3"/>
+    <rect x="884" y="228" width="12" height="26" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk2 imp-4"/>
+    <rect x="914" y="228" width="12" height="26" rx="2" fill="rgba(6,182,212,0.5)" stroke="#06b6d4" stroke-width="1.5" class="imp-tk2 imp-5"/>
+
+    <rect x="802" y="228" width="12" height="26" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk2"/>
+    <rect x="833" y="228" width="12" height="26" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk2"/>
+    <rect x="866" y="228" width="12" height="26" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk2"/>
+    <rect x="899" y="228" width="12" height="26" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk2"/>
+    <rect x="929" y="228" width="12" height="26" rx="2" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="0.5" opacity="0.4" class="faded-tk2"/>
+
+    <text x="867" y="270" text-anchor="middle" fill="#94a3b8" font-size="8" class="p4-imp-label">3 layers × 8 heads (self-attention)</text>
+
+    <!-- 10 dashed lines from magnifier going DOWN to 15 patches -->
+    <line x1="794" y1="320" x2="791" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="810" y1="320" x2="802" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="826" y1="320" x2="813" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="842" y1="320" x2="824" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="858" y1="320" x2="835" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="874" y1="320" x2="846" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="890" y1="320" x2="857" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="906" y1="320" x2="868" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="922" y1="320" x2="879" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+    <line x1="938" y1="320" x2="890" y2="345" stroke="rgba(6,182,212,0.15)" stroke-width="0.8" stroke-dasharray="2,2" class="p4-to-row"/>
+
+    <!-- 15 reconstructed patches in a row (was at top in Panel 3) -->
+    <g class="p4-tokens">
+      <rect x="787" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-1"/>
+      <rect x="798" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-2"/>
+      <rect x="809" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-3"/>
+      <rect x="820" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-4"/>
+      <rect x="831" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-5"/>
+      <rect x="842" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-6"/>
+      <rect x="853" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-7"/>
+      <rect x="864" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-8"/>
+      <rect x="875" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-9"/>
+      <rect x="886" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-10"/>
+      <rect x="897" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-11"/>
+      <rect x="908" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-12"/>
+      <rect x="919" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-13"/>
+      <rect x="930" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-14"/>
+      <rect x="941" y="350" width="9" height="20" rx="2" fill="rgba(6,182,212,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="0.7" class="rec-tk rec-15"/>
+    </g>
+    <text x="867" y="385" text-anchor="middle" fill="#94a3b8" font-size="8" class="p4-row-label">30 reconstructed patches</text>
+
+    <!-- Magnifier between important and row, with handle pointing DOWN (inverse of Panel 3) -->
+    <g class="p4-look">
+      <circle cx="867" cy="308" r="18" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.3)" stroke-width="1.5" class="p4-magnify"/>
+      <circle cx="867" cy="308" r="6" fill="none" stroke="#06b6d4" stroke-width="2" class="p4-magnify-inner"/>
+      <line x1="867" y1="326" x2="867" y2="338" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- ============================ PANEL 5: Reconstructed ============================ -->
+<g class="p5" transform="translate(-30, 0)">
+    <!-- Faded original (the input as reference) -->
+    <path d="M 935 220 L 938 218 C 941 214 944 212 950 207 L 956 204 L 962 210 L 968 216 L 974 208 L 980 200 L 986 196 L 992 202 L 998 212 L 1004 206 L 1010 194 L 1016 190 L 1022 198 L 1028 208 L 1034 206 L 1040 200 L 1046 194 L 1052 202 L 1058 212 L 1064 210 L 1070 206 L 1076 212 L 1082 216 L 1088 218" fill="none" stroke="rgba(148,163,184,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3,3" class="p5-original"/>
+    <text x="1010" y="240" text-anchor="middle" fill="#94a3b8" font-size="8" class="p5-orig-label">original (reference)</text>
+
+    <!-- Reconstructed spectrum (matching the input) -->
+    <path d="M 935 290 L 938 288 C 941 284 944 282 950 277 L 956 274 L 962 280 L 968 286 L 974 278 L 980 270 L 986 266 L 992 272 L 998 282 L 1004 276 L 1010 264 L 1016 260 L 1022 268 L 1028 278 L 1034 276 L 1040 270 L 1046 264 L 1052 272 L 1058 282 L 1064 280 L 1070 276 L 1076 282 L 1082 286 L 1088 288" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="p5-reconstructed"/>
+    <text x="1010" y="310" text-anchor="middle" fill="#06b6d4" font-size="9" font-weight="600" class="p5-recon-label">reconstructed output</text>
+
+    <!-- Match indicator -->
+    <g class="p5-match">
+      <circle cx="1010" cy="345" r="14" fill="rgba(6,182,212,0.2)" stroke="#06b6d4" stroke-width="2"/>
+      <text x="1010" y="350" text-anchor="middle" fill="#06b6d4" font-size="14" font-weight="bold">✓</text>
+    </g>
+    <text x="1010" y="375" text-anchor="middle" fill="#06b6d4" font-size="9" class="p5-match-label">matches the input</text>
+  </g>
+
+  </g><!-- /arch-s0 -->
+
+  <!-- ============================ STEP 2: Redshift Head ============================ -->
+  <g class="arch-s2">
+
+    <rect x="660" y="46" width="438" height="376" rx="14" fill="rgba(239,68,68,0.06)" stroke="rgba(239,68,68,0.35)" stroke-width="1.5"/>
+    <text x="879" y="44" text-anchor="middle" fill="#ef4444" font-size="20" font-weight="700">Redshift Head</text>
+
+    <rect class="p4-bg" x="665" y="58" width="210" height="352" rx="8" fill="rgba(30,41,59,0.35)" stroke="rgba(75,85,99,0.3)" stroke-width="1"/>
+    <rect class="p5-bg" x="885" y="58" width="210" height="352" rx="8" fill="rgba(30,41,59,0.35)" stroke="rgba(75,85,99,0.3)" stroke-width="1"/>
+
+    <text class="p4-label" x="770" y="78" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">4. Multi-Head Attn.</text>
+    <text class="p5-label" x="990" y="78" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">5. Output</text>
+
+    <line class="p4-arrow" x1="657" y1="234" x2="663" y2="234" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow23)"/>
+    <line class="p5-arrow" x1="877" y1="234" x2="883" y2="234" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow23)"/>
+
+    <!-- ============================ PANEL 4: Multi-Head Attention ============================ -->
+    <g class="p4" transform="translate(-97, 0)">
+      <rect x="776" y="110" width="184" height="290" rx="6" fill="rgba(30,41,59,0.5)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
+      <text x="867" y="135" text-anchor="middle" fill="#94a3b8" font-size="9">each token looks at every other</text>
+      <text x="867" y="148" text-anchor="middle" fill="#94a3b8" font-size="9">weighted by similarity</text>
+      <g class="p4-arcs">
+        <path class="attn-arc h1" d="M 842 170 Q 816 140 791 170" fill="none" stroke="#06b6d4" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="100" stroke-dashoffset="100"/>
+        <path class="attn-arc h2" d="M 842 170 Q 825 145 808 170" fill="none" stroke="#6366f1" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="100" stroke-dashoffset="100"/>
+        <path class="attn-arc h3" d="M 842 170 Q 859 145 876 170" fill="none" stroke="#fbbf24" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="100" stroke-dashoffset="100"/>
+        <path class="attn-arc h4" d="M 842 170 Q 884 140 927 170" fill="none" stroke="#10b981" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="100" stroke-dashoffset="100"/>
+        <path class="attn-arc h5" d="M 893 170 Q 859 140 825 170" fill="none" stroke="#ef4444" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="100" stroke-dashoffset="100"/>
+        <path class="attn-arc h6" d="M 893 170 Q 876 145 859 170" fill="none" stroke="#8b5cf6" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="100" stroke-dashoffset="100"/>
+        <path class="attn-arc h7" d="M 893 170 Q 902 145 910 170" fill="none" stroke="#ec4899" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="100" stroke-dashoffset="100"/>
+        <path class="attn-arc h8" d="M 893 170 Q 918 145 944 170" fill="none" stroke="#14b8a6" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="100" stroke-dashoffset="100"/>
+      </g>
+      <g class="p4-tokens">
+        <rect class="tk tk-1" x="786" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-2" x="803" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-3" x="820" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-4" x="837" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-5" x="854" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-6" x="871" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-7" x="888" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-8" x="905" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-9" x="922" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+        <rect class="tk tk-10" x="939" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+      </g>
+      <rect class="imp-tk imp-tk-a" x="837" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.4)" stroke="#06b6d4" stroke-width="1.5"/>
+      <rect class="imp-tk imp-tk-b" x="888" y="170" width="10" height="20" rx="2" fill="rgba(6,182,212,0.4)" stroke="#06b6d4" stroke-width="1.5"/>
+      <g class="p4-heads">
+        <text x="867" y="215" text-anchor="middle" fill="#94a3b8" font-size="9">8 attention heads</text>
+        <text x="867" y="228" text-anchor="middle" fill="#64748b" font-size="7">different ways of looking</text>
+        <circle class="hd hd-1" cx="822" cy="245" r="3" fill="#06b6d4"/>
+        <circle class="hd hd-2" cx="834" cy="245" r="3" fill="#6366f1"/>
+        <circle class="hd hd-3" cx="846" cy="245" r="3" fill="#fbbf24"/>
+        <circle class="hd hd-4" cx="858" cy="245" r="3" fill="#10b981"/>
+        <circle class="hd hd-5" cx="870" cy="245" r="3" fill="#ef4444"/>
+        <circle class="hd hd-6" cx="882" cy="245" r="3" fill="#8b5cf6"/>
+        <circle class="hd hd-7" cx="894" cy="245" r="3" fill="#ec4899"/>
+        <circle class="hd hd-8" cx="906" cy="245" r="3" fill="#14b8a6"/>
+      </g>
+      <g class="p4-sum">
+        <circle class="p4-sum-circle" cx="867" cy="300" r="20" fill="rgba(6,182,212,0.2)" stroke="#06b6d4" stroke-width="2"/>
+        <text x="867" y="306" text-anchor="middle" fill="#06b6d4" font-size="22" font-weight="700">Σ</text>
+      </g>
+      <text class="p4-sum-label" x="867" y="340" text-anchor="middle" fill="#94a3b8" font-size="9">weighted context</text>
+    </g>
+
+    <!-- ============================ PANEL 5: MLP Head + Output ============================ -->
+    <g class="p5" transform="translate(-30, 0)">
+      <rect x="965" y="130" width="100" height="16" rx="3" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.25)" stroke-width="1" class="mb5-1"/>
+      <rect x="965" y="150" width="100" height="16" rx="3" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.25)" stroke-width="1" class="mb5-2"/>
+      <rect x="965" y="170" width="100" height="16" rx="3" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.25)" stroke-width="1" class="mb5-3"/>
+      <rect x="965" y="190" width="100" height="16" rx="3" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.25)" stroke-width="1" class="mb5-4"/>
+      <rect x="965" y="210" width="100" height="16" rx="3" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.25)" stroke-width="1" class="mb5-5"/>
+      <text x="960" y="178" text-anchor="middle" fill="#e2e8f0" font-size="15" transform="rotate(-90, 960, 178)" class="p5-mlp-label">5 × ResMLP</text>
+      <line x1="1015" y1="230" x2="1015" y2="252" stroke="rgba(6,182,212,0.4)" stroke-width="1.5" marker-end="url(#arrow23)"/>
+      <g class="p5-z">
+        <rect x="965" y="290" width="100" height="40" rx="10" fill="rgba(30,41,59,0.9)" stroke="#06b6d4" stroke-width="2.5"/>
+        <text x="995" y="316" text-anchor="end" fill="#06b6d4" font-size="15" font-weight="600">z =</text>
+        <text x="1000" y="316" text-anchor="start" fill="#e2e8f0" font-size="26" font-weight="700" class="z-val">0.84</text>
+      </g>
+    </g>
+
+  </g><!-- /arch-s2 -->
+
+</svg>
+</div>
+<style>
+.anim-arch-slide .anim-arch-wrap { width:100%; height:calc(100% - 70px); display:flex; align-items:center; justify-content:center; }
+
+/* Sequential timing for 15s cycle:
+   Panel 1: 0-8% (input spectrum draws)
+   Panel 2: 8-42% (k=41: 8-17%, k=21: 17-25%, k=11: 25-33%, maxpool: 33-42%)
+   Panel 3: 42-67% (scan: 42-50%, highlight: 50-58%, summary: 58-67%)
+   Panel 4: 67-83% (feature pulses)
+   Panel 5: 83-100% (reconstructed spectrum draws + match) */
+
+/* Panel 1: Input spectrum draw */
+@keyframes ae23DrawSpec {
+  0% { stroke-dashoffset: 600; }
+  8% { stroke-dashoffset: 0; }
+  92% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 600; }
+}
+.anim-arch-slide.animate .p1-spectrum { stroke-dasharray:600; stroke-dashoffset:0; animation:ae23DrawSpec 15s 1 forwards; }
+
+@keyframes ae23EmPulse {
+  0%, 7% { fill-opacity:0; }
+  8% { fill-opacity:0.08; }
+  15% { fill-opacity:0.25; }
+  25% { fill-opacity:0.08; }
+  42% { fill-opacity:0.08; }
+  92% { fill-opacity:0.08; }
+  100% { fill-opacity:0; }
+}
+.anim-arch-slide.animate .p1-em { animation:ae23EmPulse 15s 1 forwards; }
+
+/* Panel 2: Kernel sliding */
+@keyframes ae23K1 {
+  0%, 7% { transform:translate(0px,0px); opacity:0; }
+  8% { opacity:1; }
+  17% { transform:translate(178px,0px); }
+  20%, 100% { opacity:0; }
+}
+@keyframes ae23K2 {
+  0%, 17% { opacity:0; }
+  20% { opacity:1; transform:translate(0px,0px); }
+  25% { transform:translate(178px,0px); }
+  28%, 100% { opacity:0; }
+}
+@keyframes ae23K3 {
+  0%, 25% { opacity:0; }
+  28% { opacity:1; transform:translate(0px,0px); }
+  33% { transform:translate(178px,0px); }
+  36%, 100% { opacity:0; }
+}
+.anim-arch-slide.animate .k1 { animation:ae23K1 15s 1 forwards; }
+.anim-arch-slide.animate .k2 { animation:ae23K2 15s 1 forwards; }
+.anim-arch-slide.animate .k3 { animation:ae23K3 15s 1 forwards; }
+
+/* Panel 2: Output buildup */
+@keyframes ae23BuildO1 {
+  0%, 7% { stroke-dashoffset: 300; }
+  17% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes ae23BuildO2 {
+  0%, 17% { stroke-dashoffset: 300; opacity:0; }
+  20% { opacity:1; }
+  25% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; opacity:1; }
+}
+@keyframes ae23BuildO3 {
+  0%, 25% { stroke-dashoffset: 300; opacity:0; }
+  28% { opacity:1; }
+  33% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; opacity:1; }
+}
+.anim-arch-slide.animate .p2-o1 { stroke-dasharray:300; stroke-dashoffset:0; animation:ae23BuildO1 15s 1 forwards; }
+.anim-arch-slide.animate .p2-o2 { stroke-dasharray:300; stroke-dashoffset:0; animation:ae23BuildO2 15s 1 forwards; }
+.anim-arch-slide.animate .p2-o3 { stroke-dasharray:300; stroke-dashoffset:0; animation:ae23BuildO3 15s 1 forwards; }
+
+/* Panel 2: Highlight active output row */
+@keyframes ae23RH1 {
+  0%, 7% { opacity:0.4; }
+  10%, 17% { opacity:1; }
+  20%, 100% { opacity:0.7; }
+}
+@keyframes ae23RH2 {
+  0%, 17% { opacity:0.4; }
+  20%, 25% { opacity:1; }
+  28%, 100% { opacity:0.7; }
+}
+@keyframes ae23RH3 {
+  0%, 25% { opacity:0.4; }
+  28%, 33% { opacity:1; }
+  36%, 100% { opacity:0.7; }
+}
+.anim-arch-slide.animate .out-1 { animation:ae23RH1 15s 1 forwards; }
+.anim-arch-slide.animate .out-2 { animation:ae23RH2 15s 1 forwards; }
+.anim-arch-slide.animate .out-3 { animation:ae23RH3 15s 1 forwards; }
+
+/* Panel 2: Kernel label visibility */
+@keyframes ae23KL1 {
+  0%, 7% { opacity:0; }
+  10%, 17% { opacity:1; }
+  20%, 100% { opacity:0; }
+}
+@keyframes ae23KL2 {
+  0%, 17% { opacity:0; }
+  20%, 25% { opacity:1; }
+  28%, 100% { opacity:0; }
+}
+@keyframes ae23KL3 {
+  0%, 25% { opacity:0; }
+  28%, 33% { opacity:1; }
+  36%, 100% { opacity:0; }
+}
+.anim-arch-slide.animate .k1-label { animation:ae23KL1 15s 1 forwards; }
+.anim-arch-slide.animate .k2-label { animation:ae23KL2 15s 1 forwards; }
+.anim-arch-slide.animate .k3-label { animation:ae23KL3 15s 1 forwards; }
+
+/* Panel 3: Token scanning */
+@keyframes ae23Scan {
+  0%, 41% { stroke-opacity:0.3; stroke-width:1.5; }
+  46% { stroke-opacity:0.9; stroke-width:2.5; }
+  50% { stroke-opacity:0.9; stroke-width:2.5; }
+  55%, 100% { stroke-opacity:0.3; stroke-width:1.5; }
+}
+.anim-arch-slide.animate .p3-magnify { animation:ae23Scan 15s 1 forwards; }
+
+@keyframes ae23LookLine {
+  0%, 41% { stroke-opacity:0.15; }
+  46% { stroke-opacity:0.5; }
+  50% { stroke-opacity:0.5; }
+  55%, 100% { stroke-opacity:0.15; }
+}
+.anim-arch-slide.animate .p3-look-line { animation:ae23LookLine 15s 1 forwards; }
+
+/* Panel 3: Important token highlight */
+@keyframes ae23Imp {
+  0%, 49% { fill-opacity:0.2; stroke-opacity:0.4; stroke-width:1; }
+  54% { fill-opacity:0.7; stroke-opacity:1; stroke-width:2; }
+  58% { fill-opacity:0.7; stroke-opacity:1; stroke-width:2; }
+  67% { fill-opacity:0.5; stroke-opacity:0.8; stroke-width:1.5; }
+  100% { fill-opacity:0.5; stroke-opacity:0.8; stroke-width:1.5; }
+}
+.anim-arch-slide.animate .imp-tk { animation:ae23Imp 15s 1 forwards; }
+.anim-arch-slide.animate .imp-2 { animation-delay:0.2s; }
+.anim-arch-slide.animate .imp-3 { animation-delay:0.4s; }
+.anim-arch-slide.animate .imp-4 { animation-delay:0.6s; }
+.anim-arch-slide.animate .imp-5 { animation-delay:0.8s; }
+
+@keyframes ae23ImpLabel {
+  0%, 49% { opacity:0; }
+  54% { opacity:1; }
+  58% { opacity:1; }
+  67%, 100% { opacity:0; }
+}
+.anim-arch-slide.animate .p3-imp-label { animation:ae23ImpLabel 15s 1 forwards; }
+
+/* Panel 3: Summary combination */
+@keyframes ae23SumLine {
+  0%, 57% { stroke-opacity:0; }
+  62% { stroke-opacity:0.6; }
+  67% { stroke-opacity:0.6; }
+  75%, 100% { stroke-opacity:0; }
+}
+.anim-arch-slide.animate .p3-summary-line { animation:ae23SumLine 15s 1 forwards; }
+.anim-arch-slide.animate .p3-summary-line:nth-child(2) { animation-delay:0.1s; }
+.anim-arch-slide.animate .p3-summary-line:nth-child(3) { animation-delay:0.2s; }
+.anim-arch-slide.animate .p3-summary-line:nth-child(4) { animation-delay:0.3s; }
+.anim-arch-slide.animate .p3-summary-line:nth-child(5) { animation-delay:0.4s; }
+
+@keyframes ae23SumGlow {
+  0%, 57% { fill-opacity:0.2; stroke-opacity:0.6; stroke-width:2; }
+  62% { fill-opacity:0.4; stroke-opacity:1; stroke-width:3; }
+  67% { fill-opacity:0.4; stroke-opacity:1; stroke-width:3; }
+  75%, 100% { fill-opacity:0.2; stroke-opacity:0.6; stroke-width:2; }
+}
+.anim-arch-slide.animate .p3-summary-circle { animation:ae23SumGlow 15s 1 forwards; }
+
+/* Panel 4: Transformer Decoder - inverse of encoder (67-83%) */
+@keyframes ae23P4Sum {
+  0%, 67% { opacity:0; transform:scale(0.5); }
+  69% { opacity:1; transform:scale(1.1); }
+  71% { transform:scale(1); }
+  100% { opacity:1; transform:scale(1); }
+}
+@keyframes ae23P4SumLabel {
+  0%, 70% { opacity:0; }
+  72%, 100% { opacity:1; }
+}
+@keyframes ae23P4FromSum {
+  0%, 71% { stroke-dashoffset: 100; opacity:0; }
+  72% { opacity:0.4; }
+  74% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; opacity:0.4; }
+}
+@keyframes ae23P4Imp {
+  0%, 73% { opacity:0; }
+  100% { opacity:1; }
+}
+@keyframes ae23P4Faded {
+  0%, 75% { opacity:0; }
+  77%, 100% { opacity:0.4; }
+}
+@keyframes ae23P4ImpLabel {
+  0%, 76% { opacity:0; }
+  78%, 100% { opacity:1; }
+}
+@keyframes ae23P4Magnify {
+  0%, 76% { opacity:0; }
+  78% { opacity:0.08; }
+  82% { opacity:0.3; }
+  100% { opacity:0.3; }
+}
+@keyframes ae23P4MagnifyInner {
+  0%, 76% { opacity:0; }
+  78%, 100% { opacity:1; }
+}
+@keyframes ae23P4ToRow {
+  0%, 78% { stroke-opacity:0; }
+  81% { stroke-opacity:0.15; }
+  100% { stroke-opacity:0.15; }
+}
+@keyframes ae23P4Rec {
+  0%, 80% { opacity:0; }
+  100% { opacity:1; }
+}
+@keyframes ae23P4RowLabel {
+  0%, 82% { opacity:0; }
+  83%, 100% { opacity:1; }
+}
+.anim-arch-slide.animate .p4-summary { animation:ae23P4Sum 15s 1 forwards; transform-origin:867px 148px; }
+.anim-arch-slide.animate .p4-sum-label { animation:ae23P4SumLabel 15s 1 forwards; }
+.anim-arch-slide.animate .p4-from-sum { stroke-dasharray:100; stroke-dashoffset:0; animation:ae23P4FromSum 15s 1 forwards; }
+.anim-arch-slide.animate .imp-tk2 { animation:ae23P4Imp 15s 1 forwards; }
+.anim-arch-slide.animate .imp-1 { animation-delay:0s; }
+.anim-arch-slide.animate .imp-2 { animation-delay:0.15s; }
+.anim-arch-slide.animate .imp-3 { animation-delay:0.30s; }
+.anim-arch-slide.animate .imp-4 { animation-delay:0.45s; }
+.anim-arch-slide.animate .imp-5 { animation-delay:0.60s; }
+.anim-arch-slide.animate .faded-tk2 { animation:ae23P4Faded 15s 1 forwards; }
+.anim-arch-slide.animate .p4-imp-label { animation:ae23P4ImpLabel 15s 1 forwards; }
+.anim-arch-slide.animate .p4-magnify { animation:ae23P4Magnify 15s 1 forwards; }
+.anim-arch-slide.animate .p4-magnify-inner { animation:ae23P4MagnifyInner 15s 1 forwards; }
+.anim-arch-slide.animate .p4-to-row { animation:ae23P4ToRow 15s 1 forwards; }
+.anim-arch-slide.animate .rec-tk { animation:ae23P4Rec 15s 1 forwards; }
+.anim-arch-slide.animate .rec-1 { animation-delay:0s; }
+.anim-arch-slide.animate .rec-2 { animation-delay:0.05s; }
+.anim-arch-slide.animate .rec-3 { animation-delay:0.10s; }
+.anim-arch-slide.animate .rec-4 { animation-delay:0.15s; }
+.anim-arch-slide.animate .rec-5 { animation-delay:0.20s; }
+.anim-arch-slide.animate .rec-6 { animation-delay:0.25s; }
+.anim-arch-slide.animate .rec-7 { animation-delay:0.30s; }
+.anim-arch-slide.animate .rec-8 { animation-delay:0.35s; }
+.anim-arch-slide.animate .rec-9 { animation-delay:0.40s; }
+.anim-arch-slide.animate .rec-10 { animation-delay:0.45s; }
+.anim-arch-slide.animate .rec-11 { animation-delay:0.50s; }
+.anim-arch-slide.animate .rec-12 { animation-delay:0.55s; }
+.anim-arch-slide.animate .rec-13 { animation-delay:0.60s; }
+.anim-arch-slide.animate .rec-14 { animation-delay:0.65s; }
+.anim-arch-slide.animate .rec-15 { animation-delay:0.70s; }
+.anim-arch-slide.animate .p4-row-label { animation:ae23P4RowLabel 15s 1 forwards; }
+
+/* Panel 5: Reconstructed spectrum draws (83-100%) */
+@keyframes ae23DrawRecon {
+  0%, 82% { stroke-dashoffset: 400; opacity:0.3; }
+  85% { opacity:1; }
+  94% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; opacity:1; }
+}
+.anim-arch-slide.animate .p5-reconstructed { stroke-dasharray:400; stroke-dashoffset:0; animation:ae23DrawRecon 15s 1 forwards; }
+
+@keyframes ae23OrigFade {
+  0%, 82% { opacity:0; }
+  85%, 100% { opacity:0.5; }
+}
+.anim-arch-slide.animate .p5-original { animation:ae23OrigFade 15s 1 forwards; }
+.anim-arch-slide.animate .p5-orig-label { animation:ae23OrigFade 15s 1 forwards; }
+
+@keyframes ae23TextFade {
+  0%, 88% { opacity:0; }
+  92%, 100% { opacity:1; }
+}
+.anim-arch-slide.animate .p5-match { animation:ae23TextFade 15s 1 forwards; transform-origin:1010px 345px; }
+.anim-arch-slide.animate .p5-match-label { animation:ae23TextFade 15s 1 forwards; }
+.anim-arch-slide.animate .p5-recon-label { animation:ae23TextFade 15s 1 forwards; }
+
+/* ===== Step transitions ===== */
+.arch-s0, .arch-s2 { opacity: 0; transition: opacity 0.6s ease-in-out; }
+.arch-step-0 .arch-s0, .arch-step-2 .arch-s2 { opacity: 1; }
+
+/* ===== Frozen state for steps 1-2 ===== */
+.arch-frozen .p1-spectrum { stroke-dashoffset:0!important; animation:none!important; stroke-dasharray:none!important; }
+.arch-frozen .p1-em { animation:none!important; fill-opacity:0.12!important; }
+.arch-frozen .k1, .arch-frozen .k2, .arch-frozen .k3 { animation:none!important; opacity:0!important; }
+.arch-frozen .k1-label, .arch-frozen .k2-label, .arch-frozen .k3-label { animation:none!important; opacity:0!important; }
+.arch-frozen .p2-o1, .arch-frozen .p2-o2, .arch-frozen .p2-o3 { stroke-dashoffset:0!important; animation:none!important; }
+.arch-frozen .out-1, .arch-frozen .out-2, .arch-frozen .out-3 { animation:none!important; opacity:0.7!important; stroke-dashoffset:0!important; }
+.arch-frozen .p2-label, .arch-frozen .p2-feat-label { animation:none!important; opacity:1!important; }
+.arch-frozen .p2-patches { opacity:1!important; }
+.arch-frozen .p3-magnify { animation:none!important; stroke-opacity:0.3!important; stroke-width:1.5!important; }
+.arch-frozen .p3-look-line { animation:none!important; stroke-opacity:0.15!important; }
+.arch-frozen .tk.imp-tk { animation:none!important; fill-opacity:0.5!important; stroke-opacity:0.8!important; stroke-width:1.5!important; }
+.arch-frozen .imp-tk { animation:none!important; fill-opacity:0.5!important; stroke-opacity:0.8!important; stroke-width:1.5!important; }
+.arch-frozen .p3-imp-label { animation:none!important; opacity:1!important; }
+.arch-frozen .p3-summary-line { animation:none!important; stroke-opacity:0.6!important; }
+.arch-frozen .p3-summary-circle { animation:none!important; fill-opacity:0.2!important; stroke-opacity:0.6!important; stroke-width:2!important; }
+.arch-frozen .tk { fill-opacity:0.2!important; stroke-opacity:0.3!important; }
+.arch-frozen .faded-tk { opacity:0.4!important; }
+
+/* ===== Step 2: Redshift Head animations ===== */
+@keyframes attnTkAppear {
+  0%, 2% { opacity: 0; }
+  8% { opacity: 1; }
+  100% { opacity: 1; }
+}
+.arch-step-2.animate .p4 .tk { animation: attnTkAppear 15s 1 forwards !important; }
+.arch-step-2.animate .p4 .tk-2 { animation-delay: 0.15s !important; }
+.arch-step-2.animate .p4 .tk-3 { animation-delay: 0.3s !important; }
+.arch-step-2.animate .p4 .tk-4 { animation-delay: 0s !important; }
+.arch-step-2.animate .p4 .tk-5 { animation-delay: 0.45s !important; }
+.arch-step-2.animate .p4 .tk-6 { animation-delay: 0.2s !important; }
+.arch-step-2.animate .p4 .tk-7 { animation-delay: 0.3s !important; }
+.arch-step-2.animate .p4 .tk-8 { animation-delay: 0.5s !important; }
+.arch-step-2.animate .p4 .tk-9 { animation-delay: 0.6s !important; }
+.arch-step-2.animate .p4 .tk-10 { animation-delay: 0.1s !important; }
+
+@keyframes attnImpGlow {
+  0%, 1% { opacity: 0; fill-opacity: 0.4; stroke-opacity: 0.8; stroke-width: 1.5; }
+  5% { opacity: 1; fill-opacity: 0.7; stroke-opacity: 1; stroke-width: 2.5; }
+  8% { opacity: 1; fill-opacity: 0.4; stroke-opacity: 0.8; stroke-width: 1.5; }
+  12% { opacity: 1; fill-opacity: 0.7; stroke-opacity: 1; stroke-width: 2.5; }
+  15%, 100% { opacity: 1; fill-opacity: 0.4; stroke-opacity: 0.8; stroke-width: 1.5; }
+}
+.arch-step-2.animate .p4 .imp-tk { animation: attnImpGlow 15s 1 forwards !important; }
+
+@keyframes attnArcDraw {
+  0%, 4% { stroke-dashoffset: 100; }
+  15% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+.arch-step-2.animate .p4 .attn-arc { animation: attnArcDraw 15s 1 forwards !important; }
+
+@keyframes attnSumGlow {
+  0%, 19% { fill-opacity: 0.2; stroke-opacity: 0.6; }
+  25% { fill-opacity: 0.4; stroke-opacity: 1; }
+  30% { fill-opacity: 0.4; stroke-opacity: 1; }
+  100% { fill-opacity: 0.2; stroke-opacity: 0.6; }
+}
+.arch-step-2.animate .p4 .p4-sum-circle { animation: attnSumGlow 15s 1 forwards !important; }
+.arch-step-2.animate .p4 .p4-sum-label { animation: attnSumGlow 15s 1 forwards !important; }
+
+@keyframes mlpGlow {
+  0%, 9% { fill-opacity: 0.08; stroke-opacity: 0.25; }
+  15% { fill-opacity: 0.3; stroke-opacity: 0.7; }
+  35% { fill-opacity: 0.3; stroke-opacity: 0.7; }
+  40%, 100% { fill-opacity: 0.08; stroke-opacity: 0.25; }
+}
+.arch-step-2.animate .mb5-1 { animation: mlpGlow 15s infinite !important; }
+.arch-step-2.animate .mb5-2 { animation: mlpGlow 15s infinite !important; animation-delay: 0.1s !important; }
+.arch-step-2.animate .mb5-3 { animation: mlpGlow 15s infinite !important; animation-delay: 0.2s !important; }
+.arch-step-2.animate .mb5-4 { animation: mlpGlow 15s infinite !important; animation-delay: 0.3s !important; }
+.arch-step-2.animate .mb5-5 { animation: mlpGlow 15s infinite !important; animation-delay: 0.4s !important; }
+
+@keyframes zCount {
+  0%, 34% { opacity: 0.3; }
+  40% { opacity: 1; }
+  100% { opacity: 1; }
+}
+.arch-step-2.animate .z-val { animation: zCount 15s infinite !important; }
+
+</style>
+<div class="slide-number">6</div>
+</div>
+<div class="slide slide5-two-col-slide" data-slide="9">
+<div class="slide-title">SpecPT: Pre-trained on DESI Spectra</div>
+<div class="slide5-two-col">
+<div class="slide5-left">
+<div class="slide5-text">
+<div class="content">
+<ul class="bullets"><li>SpecPT is trained on <strong>0.5 million DESI spectra</strong></li><li>Learns spectral features predictive of redshift</li></ul>
+</div>
+</div>
+
+</div>
+<div class="slide5-desi">
+<div class="figure-image-wrap">
+<img alt="DESI redshift prediction plot" class="figure-image" src="figs/DESI_combined_density.png"/>
+<div class="credit-inline">Credit: Pattnaik, Kartaltepe &amp; Binu 2025</div>
+</div>
+</div>
+</div>
+<div class="slide-number">9</div>
+</div>
+<div class="slide" data-slide="10">
+<div class="slide-title">Fine-Tuning SpecPT on 3D-HST Grism Data</div>
+<div class="split-layout">
+<div class="left-content">
+<div class="content">
+<ul class="bullets">
+<li>Fine-tuning on HST grism data helps extend SpecPT to current and future slitless instruments such as <strong>JWST, Roman, and Euclid</strong></li>
+<li>3D-HST G141 grism operates at <strong>R~130</strong></li>
+<li>After a quality cut of <strong>SNR &gt;= 2.5</strong>, the usable sample contains <strong>~8,000 spectra</strong></li>
+<li>Applied data augmentation techniques to increase the dataset size <strong>~100,000 spectra</strong></li>
+</ul>
+</div>
+</div>
+<div class="right-figure">
+<div class="figure-image-wrap">
+<img alt="3D-HST grism spectra example" class="figure-image" src="figs/spectra_comparison.png"/>
+</div>
+</div>
+</div>
+<div class="slide-number">10</div>
+</div>
+<div class="slide slide6-large" data-slide="11">
+<div class="slide-title">Transfer Learning: Pretrain → Adapt → Specialize</div>
+<div class="split-layout">
+<div class="left-content">
+<div class="content">
+<ul class="bullets">
+<li><strong>Pre-training</strong> on DESI learns general spectral representations</li>
+<li><strong>Fine-tuning</strong> adapts these representations to new instrument domains</li>
+<li>Enables effective learning even with limited target data (~8K usable HST spectra)</li>
+<li>Data augmentation (redshift-shift + balanced sampling) expands effective sample to ~100K</li>
+</ul>
+</div>
+</div>
+<div class="right-figure">
+<div class="figure-image-wrap">
+<img alt="Transfer learning diagram" class="figure-image" src="figs/transfer_learning.png"/>
+</div>
+</div>
+</div>
+<div class="slide-number">11</div>
+</div>
+<div class="slide" data-slide="12">
+<div class="slide-title">Results on HST Grism Data</div>
+<div class="slide8-centered">
+<div class="figure-image-wrap">
+<img alt="3D-HST grism redshift results" class="figure-image" src="figs/HST_results.png"/>
+</div>
+</div>
+<div class="slide-number">12</div>
+</div>
+<div class="slide" data-slide="13">
+<div class="slide-title">Integrated Gradients Reveals What the Model Uses</div>
+<div class="centered-figure-slide"><div class="figure-image-wrap"><img alt="HST spectrum plot" class="figure-image" src="figs/hst_spectrum_IG.png"/></div></div>
+<div class="slide-number">13</div>
+</div>
+<div class="slide" data-slide="14">
+<div class="slide-title">Integrated Gradients Reveals What the Model Uses</div>
+<div class="centered-figure-slide"><div class="figure-image-wrap"><img alt="IG plot" class="figure-image" src="figs/IG.png"/></div></div>
+<div class="slide-number">14</div>
+</div>
+<div class="slide" data-slide="15">
+<div class="slide-title">Examining Outliers</div>
+<div class="centered-figure-slide"><div class="figure-image-wrap"><img alt="HST grism results with highlighted outliers" class="figure-image" src="figs/HST_results_box.png"/></div></div>
+<div class="slide-number">15</div>
+</div>
+<div class="slide slide9-flow" data-slide="16">
+<div class="slide-title">Breaking Emission Line Degeneracy with Photometry</div>
+<div class="split-layout">
+<div class="left-content">
+<div class="content">
+<ul class="bullets">
+<li>Diagonal artifacts are driven by <strong>single-line misidentification</strong></li>
+<li>Strategic field selection targets five CANDELS extragalactic fields: <strong>AEGIS, COSMOS, GOODS-S, UDS, GOODS-N</strong></li>
+</ul>
+</div>
+</div>
+<div class="right-figure">
+<div class="figure-image-wrap">
+<img alt="Photometric pipeline and arbiter model diagram" class="figure-image" src="figs/photo_z_pipline.png"/>
+</div>
+</div>
+</div>
+<div class="slide-number">16</div>
+</div>
+<div class="slide" data-slide="17">
+<div class="slide-title">Photometry Results</div>
+<div class="slide8-centered">
+<div class="figure-image-wrap">
+<img alt="Photometry-corrected redshift results" class="figure-image" src="figs/photo_z_corrected.png"/>
+</div>
+</div>
+<div class="slide-number">17</div>
+</div>
+<div class="slide slide12-centered" data-slide="18">
+<div class="slide-title">Next Steps</div>
+<div class="content" style="margin-bottom: 24px;">
+<ul class="bullets">
+<li>Apply fine-tuned <strong>SpecPT</strong> to data from telescopes such as <strong>Euclid</strong></li>
+<li>Combine the <strong>photometry CNN</strong> and <strong>arbiter model</strong> into a single unified model</li>
+<li>Extend the capabilities of <strong>SpecPT</strong> to other predictions such as <strong>SFR</strong> estimation and <strong>AGN classification</strong></li>
+</ul>
+</div>
+<div class="slide-number">18</div>
+</div>
+<div class="slide slide12-centered" data-slide="19"><div class="slide-title">Summary</div><div class="content" style="margin-bottom: 35px;"><div class="summary-content-wrap"><div class="summary-block"><ul class="summary-main"><li>SpecPT transfers effectively from DESI to HST grism data<ul class="summary-sub"><li>η decreased by 86.0% (65.23% → 9.11%)</li><li>NMAD decreased by 98.8% (0.3214 → 0.0037)</li></ul></li><li>Photometric data further improves the final predictions<ul class="summary-sub"><li>η decreased by 75.7% (9.11% → 2.21%)</li><li>NMAD increased by 13.5% (0.0037 → 0.0042)</li></ul></li><li>Integrated Gradients highlights spectral regions that drive predictions</li></ul></div><div class="summary-qr"><img alt="SpecPT paper QR code" src="figs/SpecPT_paper_qr_code.png"/><div class="qr-caption">Scan me to learn more about SpecPT</div></div></div></div><div class="slide-number">19</div></div>
+<div class="slide questions-slide" data-slide="20"><div class="slide-title"></div><div class="questions-text">Questions ?</div><div class="slide-number">20</div></div>
+<div class="slide" data-slide="21"><div class="slide-title"></div><div class="backup-figure-slide"><div class="figure-image-wrap"><img alt="BGS Autoencoder Examples" class="figure-image" src="figs/BGS_autoencoder_examples.png"/></div></div><div class="slide-number">21</div></div>
+<div class="slide" data-slide="22"><div class="slide-title"></div><div class="backup-figure-slide"><div class="figure-image-wrap"><img alt="Augmented example" class="figure-image" src="figs/Augmented_example.png"/></div></div><div class="slide-number">22</div></div>
+<div class="slide" data-slide="23"><div class="slide-title"></div><div class="backup-figure-slide"><div class="figure-image-wrap"><img alt="Augmented versus original data distribution" class="figure-image" src="figs/augmented_vs_orignal_data_distribution.png"/></div></div><div class="slide-number">23</div></div>
+<div class="slide" data-slide="24"><div class="slide-title"></div><div class="backup-katex-slide"><div class="backup-katex-grid"><div class="backup-katex-card"><h3>NMAD</h3><p>The Normalized Median Absolute Deviation is given as,</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">D</mi></mrow><mo>=</mo><mn>1.4826</mn><mo>×</mo><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi></mrow><mo stretchy="false">(</mo><mi mathvariant="normal">∣</mi><mi mathvariant="normal">Δ</mi><mi>z</mi><mi mathvariant="normal">∣</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{NMAD} = 1.4826 \times \mathrm{median}(|\Delta z|)</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord"><span class="mord mathrm">NMAD</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.4826</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathrm">median</span></span><span class="mopen">(</span><span class="mord">∣Δ</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mord">∣</span><span class="mclose">)</span></span></span></span></span></div><p>Where,</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>z</mi><mo>=</mo><mfrac><mrow><msub><mi>z</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>−</mo><msub><mi>z</mi><mrow><mi>s</mi><mi>p</mi><mi>e</mi><mi>c</mi></mrow></msub></mrow><mrow><mn>24</mn><mo>+</mo><msub><mi>z</mi><mrow><mi>s</mi><mi>p</mi><mi>e</mi><mi>c</mi></mrow></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">\Delta z = \frac{z_{pred} - z_{spec}}{1 + z_{spec}}</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2324em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.2603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">24</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">ec</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">re</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">ec</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div></div><div class="backup-katex-card"><h3>Catastrophic Outlier Fraction</h3><p>The catastrophic outlier fraction is given as follows (Ilbert et al. 2009).</p><div class="backup-katex-eq"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mfrac><mrow><mtext>Number of predictions with </mtext><mi mathvariant="normal">∣</mi><mi mathvariant="normal">Δ</mi><mi>z</mi><mi mathvariant="normal">∣</mi><mo>&gt;</mo><mn>0.15</mn></mrow><mtext>Total number of predictions</mtext></mfrac><mo>×</mo><mn>24</mn></mrow><annotation encoding="application/x-tex">\eta = \frac{\text{Number of predictions with } |\Delta z| &gt; 0.15}{\text{Total number of predictions}} \times 100</annotation></semantics></math></span><span aria-hidden="true" class="katex-html"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">η</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.3074em;vertical-align:-0.8804em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">Total number of predictions</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">Number of predictions with </span></span><span class="mord">∣Δ</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mord">∣</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0.15</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">24</span></span></span></span></span></div></div></div></div><div class="slide-number">24</div></div>
+<script>
+  let currentSlide = 1;
+  const visibleSlides = Array.from(document.querySelectorAll('.slide'))
+    .map(s => parseInt(s.getAttribute('data-slide')))
+    .sort((a, b) => a - b);
+  const totalSlides = visibleSlides.length;
+  const progressBar = document.getElementById('progressBar');
+  let archSubStep = 0;
+
+  updateSlide();
+
+  function changeSlide(direction) {
+    const archSlide = 6;
+    if (currentSlide === archSlide && direction !== 0) {
+      const newStep = archSubStep + direction;
+      if (newStep >= 0 && newStep <= 2) {
+        archSubStep = newStep;
+        updateArchStep();
+        return;
+      }
+    }
+    const currentIndex = visibleSlides.indexOf(currentSlide);
+    const newIndex = currentIndex + direction;
+    if (newIndex >= 0 && newIndex < visibleSlides.length) {
+      archSubStep = 0;
+      currentSlide = visibleSlides[newIndex];
+      updateSlide();
+    }
+  }
+
+  function updateArchStep() {
+    const slide = document.querySelector('[data-slide="6"]');
+    slide.classList.remove('arch-step-0', 'arch-step-1', 'arch-step-2', 'arch-frozen');
+    slide.classList.add('arch-step-' + archSubStep);
+    if (archSubStep === 1 || archSubStep === 2) {
+      slide.classList.add('arch-frozen');
+    }
+  }
+
+  function updateSlide() {
+    document.querySelectorAll('.slide').forEach((slide) => {
+      const slideNum = parseInt(slide.getAttribute('data-slide'));
+      slide.classList.remove('active', 'prev');
+      if (slideNum === currentSlide) {
+        slide.classList.add('active');
+      } else if (slideNum < currentSlide) {
+        slide.classList.add('prev');
+      }
+    });
+    const progress = totalSlides > 1 ? ((currentSlide - 1) / (totalSlides - 1)) * 100 : 100;
+    progressBar.style.width = progress + '%';
+    window.location.hash = currentSlide;
+
+    // Auto-start animations for animated slides on entry, reset on re-entry
+    document.querySelectorAll('.anim-arch-slide').forEach(slide => {
+      const slideNum = parseInt(slide.getAttribute('data-slide'));
+      const isActive = currentSlide === slideNum;
+      slide.classList.toggle('animate', isActive);
+      if (isActive && slideNum === 6) {
+        updateArchStep();
+      }
+    });
+
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      changeSlide(1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      changeSlide(-1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      currentSlide = 1;
+      updateSlide();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      currentSlide = visibleSlides[visibleSlides.length - 1];
+      updateSlide();
+    }
+  });
+
+  window.addEventListener('load', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && !isNaN(hash) && visibleSlides.includes(parseInt(hash))) {
+      currentSlide = parseInt(hash);
+      updateSlide();
+    }
+  });
+
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+
+  document.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) changeSlide(1);
+      else changeSlide(-1);
+    }
+  }
+
+  window.addEventListener('keydown', function(e) {
+    if(e.keyCode === 32 && e.target === document.body) {
+      e.preventDefault();
+    }
+  });
+</script>
+<script>
+(function () {
+  const BASE_W = 1920;
+  const BASE_H = 1080;
+  function fitDeck() {
+    const scale = Math.min(window.innerWidth / BASE_W, window.innerHeight / BASE_H);
+    document.documentElement.style.setProperty('--deck-scale', scale);
+  }
+  window.addEventListener('resize', fitDeck);
+  window.addEventListener('load', fitDeck);
+  fitDeck();
+})();
+</script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Generated manim media output
+media/
+
+# Python cache
+__pycache__/
+*.pyc
