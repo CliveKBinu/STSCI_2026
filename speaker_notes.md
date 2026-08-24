@@ -59,17 +59,7 @@
 "So this first result is promising, because it shows that transfer learning is working on grism data."  
 "The diagonal structures in the plot tell us the model is making systematic mistakes rather than just random noise."  
 "Our interpretation is that the model is sometimes confusing single emission lines and therefore landing on the wrong redshift branch."  
-**Transition:** "Before we address that, let me show you what the model is actually attending to."
-
-**Slide 10 — GradCAM (HST spectrum)**  
-"We used GradCAM for interpretability, because we wanted to check whether the model is attending to meaningful spectral regions."  
-"This shows the model's attention on an individual HST spectrum."  
-**Transition:** "And here's the integrated gradient view."
-
-**Slide 11 — GradCAM (IG)**  
-"The integrated gradient analysis confirms that the model is focusing on emission lines and continuum features that make physical sense."  
-"That part matters scientifically, because in astronomy we care not only about performance, but also about whether the model's behavior makes physical sense."  
-**Transition:** "Now let's look more closely at the failure mode."
+**Transition:** "That led us to look more closely at the failure mode."
 
 **Slide 12 — Examining Outliers**  
 "Looking at the outliers in more detail, we can see the structured nature of the failures."  
@@ -86,6 +76,16 @@
 **Slide 14 — Photometry Results**  
 "After adding photometry, those diagonal artifacts are reduced, which supports the idea that the extra information is helping resolve the line-confusion problem."  
 "The catastrophic outlier fraction drops from 9.11% to 2.21%."  
+**Transition:** "That improvement is encouraging, but we also wanted to check whether the model is making these predictions for the right physical reasons."
+
+**Slide 10 — GradCAM (HST spectrum)**  
+"We used GradCAM for interpretability, because we wanted to check whether the model is attending to meaningful spectral regions."  
+"This shows the model's attention on an individual HST spectrum."  
+**Transition:** "And here's the integrated gradient view."
+
+**Slide 11 — GradCAM (IG)**  
+"The integrated gradient analysis confirms that the model is focusing on emission lines and continuum features that make physical sense."  
+"That part matters scientifically, because in astronomy we care not only about performance, but also about whether the model's behavior makes physical sense."  
 **Transition:** "So to finish, I'll end with where we want to take this next."
 
 ## Closing
