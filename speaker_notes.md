@@ -33,6 +33,22 @@
 
 ## Method
 
+**Slide 6 — SpecPT Architecture Walkthrough** (6 sub-steps, arrow keys advance, ~3 min total)
+
+**Sub-step 0 (Input):** "Here's one spectrum — 7781 flux values. Spikes are emission lines; the wiggle along the trace is noise. Flux is z-scored before entering the model."
+
+**Sub-step 1 (Convolution):** "A pattern of 41 weights slides along the spectrum. Sixty-four filters run at once — the heatmap below fills in as the window travels. Stride 2, so half the length."
+
+**Sub-step 2 (Three convs + pool):** "Each convolution halves the length and widens the description: 64 → 128 → 256 channels, then a max-pool leaves 487 positions."
+
+**Sub-step 3 (Transformer):** "The convolutional stack is flattened and projected to a 512-number vector, then three transformer encoder layers refine it into a 512-d latent representation — this shared encoder block is exactly what both models reuse."
+
+**Sub-step 4 (Decoder):** "A transformer decoder refines the latent, then linear layers expand it back to 7781 values. The reconstruction lands on top of the input — lines and continuum survive the round trip."
+
+**Sub-step 5 (Redshift head):** "For redshift, the same encoder output flows through self-attention and five residual MLP blocks, then a small prediction head with a Softplus outputs one continuous z, trained with an NMAD loss." [Press 'r' to replay]
+
+**Transition:** "That pretrained encoder is what we carry into HST grism data."
+
 **Slide 6 — Pre-training on DESI**  
 "SpecPT is pre-trained on half a million spectra from the DESI survey."  
 "At this stage, the model learns a rich representation of spectral features that are predictive of redshift."  
