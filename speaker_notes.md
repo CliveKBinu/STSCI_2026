@@ -111,8 +111,8 @@
 **Transition:** "So the main takeaway is..."
 
 **Slide 16 — Summary**  
-"SpecPT transfers effectively from DESI to HST grism data — the catastrophic outlier fraction drops from 65% to 9%."  
-"Photometric data further improves the final predictions to 2.21%."  
+"SpecPT transfers effectively from DESI to HST grism data — the catastrophic outlier fraction drops from 52% to 37%."  
+"Photometric data further improves the final predictions to 6.24%."  
 "GradCAM highlights spectral regions that drive predictions, confirming the model learns physically meaningful features."  
 **Transition:** "Thank you."
 
