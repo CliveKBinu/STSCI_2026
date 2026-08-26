@@ -3268,7 +3268,7 @@ const ARCH_SLIDES = [
 {
   part:1, dur:4800, arch:"tx",
   draw(t){
-    slideTitle("The transformer outputs a 512-d latent");
+    slideTitle("The transformer outputs a 512-d latent space");
     const HX = 60, HY = 185, HW = 280, HH = 150;
     const aH = ease(seg(t, 0, .14));
     archCx.save(); archCx.globalAlpha = aH;
@@ -3564,7 +3564,7 @@ function archShow(i){
 <div class="slide-title">Next Steps</div>
 <div class="content" style="margin-bottom: 24px;">
 <ul class="bullets">
-<li>Apply fine-tuned <strong>SpecPT</strong> to data from telescopes such as <strong>Euclid</strong></li>
+<li>Apply fine-tuned <strong>SpecPT</strong> to data from telescopes such as <strong>Euclid</strong> and <strong>Roman</strong></li>
 <li>Combine the <strong>photometry CNN</strong> and <strong>arbiter model</strong> into a single unified model</li>
 <li>Extend the capabilities of <strong>SpecPT</strong> to other predictions such as <strong>SFR</strong> estimation and <strong>AGN classification</strong></li>
 </ul>
